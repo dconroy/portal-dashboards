@@ -1,2446 +1,2044 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Realtor Association — Member Dashboard Concepts</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+  <title>Member Portal — Realtors Association</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Serif+Display&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
+    /* ── CSS CUSTOM PROPERTIES ── */
+    :root {
+      --sidebar-w: 260px;
+      --sidebar-bg: #111827;
+      --sidebar-hover: #1f2937;
+      --sidebar-active: #1e3a5f;
+      --sidebar-text: #9ca3af;
+      --sidebar-active-text: #93c5fd;
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-2: #475569;
+      --muted: #94a3b8;
+      --primary: #1d4ed8;
+      --primary-light: #eff6ff;
+      --primary-hover: #1e40af;
+      --success: #059669;
+      --success-light: #ecfdf5;
+      --warning: #d97706;
+      --warning-light: #fffbeb;
+      --danger: #dc2626;
+      --danger-light: #fef2f2;
+      --radius: 12px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+    html { font-size: 16px; }
     body {
       font-family: "Inter", sans-serif;
-      background: #0f172a;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px 16px 48px;
+      overflow-x: hidden;
     }
 
-    /* ─── META SWITCHER ─────────────────────────────── */
-    .meta-bar {
-      width: 100%;
-      max-width: 1400px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 0 18px;
-      gap: 16px;
-      flex-wrap: wrap;
+    /* ── LAYOUT SHELL ── */
+    .sidebar {
+      position: fixed; top: 0; left: 0;
+      width: var(--sidebar-w); height: 100vh;
+      background: var(--sidebar-bg);
+      display: flex; flex-direction: column;
+      overflow-y: auto; z-index: 200;
+      transition: transform 220ms ease;
     }
-
-    .meta-label {
-      color: #94a3b8;
-      font-size: 0.8rem;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
+    .main-wrap {
+      margin-left: var(--sidebar-w);
+      min-height: 100vh;
+      display: flex; flex-direction: column;
     }
-
-    .switcher {
-      display: flex;
-      gap: 6px;
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 14px;
-      padding: 5px;
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 12px;
+      position: sticky; top: 0; z-index: 100;
     }
+    .main-content { padding: 28px; flex: 1; }
 
-    .switcher button {
-      border: none;
-      border-radius: 10px;
-      padding: 9px 18px;
-      cursor: pointer;
-      background: transparent;
-      color: #64748b;
-      font-weight: 600;
-      font-size: 0.82rem;
-      font-family: "Inter", sans-serif;
-      transition: all 140ms ease;
-      white-space: nowrap;
-    }
-
-    .switcher button.active {
-      background: #fff;
-      color: #0f172a;
-    }
-
-    .switcher button:not(.active):hover {
-      color: #cbd5e1;
-    }
-
-    /* ─── CONCEPT WRAPPER ───────────────────────────── */
-    .concept {
+    /* ── MOBILE ── */
+    .mob-header {
       display: none;
-      width: 100%;
-      max-width: 1400px;
+      background: var(--sidebar-bg);
+      padding: 12px 16px;
+      align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 300;
     }
-    .concept.active { display: block; }
-
-    /* ══════════════════════════════════════════════════
-       CONCEPT 1 — OPERATIONS DASHBOARD
-       Dark command-center, horizontal top nav, no sidebar
-       Inspired by MetroTex 2025 member portal redesign
-    ══════════════════════════════════════════════════ */
-    .c1 {
-      background: #0f1629;
-      border-radius: 20px;
-      overflow: hidden;
-      border: 1px solid #1e293b;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
-    }
-
-    .c1-topbar {
-      background: #0a0f1e;
-      border-bottom: 1px solid #1e2d47;
-      padding: 0 28px;
-      display: flex;
-      align-items: center;
-      gap: 0;
-    }
-
-    .c1-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 16px 0;
-      margin-right: 32px;
-      flex-shrink: 0;
-    }
-
-    .c1-logo {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: linear-gradient(135deg, #3b82f6, #06b6d4);
-      display: grid;
-      place-items: center;
-      font-weight: 800;
-      font-size: 12px;
-      color: #fff;
-      letter-spacing: -0.5px;
-    }
-
-    .c1-brand-text {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .c1-brand-text strong {
-      color: #f1f5f9;
-      font-size: 0.88rem;
-      font-weight: 700;
-      line-height: 1.2;
-    }
-
-    .c1-brand-text span {
-      color: #475569;
-      font-size: 0.72rem;
-    }
-
-    .c1-nav {
-      display: flex;
-      gap: 0;
-      flex: 1;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-
-    .c1-nav::-webkit-scrollbar { display: none; }
-
-    .c1-nav a {
-      text-decoration: none;
-      color: #64748b;
-      font-size: 0.82rem;
-      font-weight: 500;
-      padding: 0 14px;
-      height: 58px;
-      display: flex;
-      align-items: center;
-      border-bottom: 2px solid transparent;
-      white-space: nowrap;
-      transition: all 120ms ease;
-    }
-
-    .c1-nav a:hover { color: #cbd5e1; }
-
-    .c1-nav a.active {
-      color: #60a5fa;
-      border-bottom-color: #3b82f6;
-      font-weight: 600;
-    }
-
-    .c1-user {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-left: auto;
-      padding: 12px 0;
-      flex-shrink: 0;
-    }
-
-    .c1-notif {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: #1e2d47;
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-      position: relative;
-      color: #94a3b8;
-    }
-
-    .c1-notif-dot {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      width: 7px;
-      height: 7px;
-      background: #f97316;
-      border-radius: 50%;
-      border: 1.5px solid #0a0f1e;
-    }
-
-    .c1-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      display: grid;
-      place-items: center;
-      color: #fff;
-      font-weight: 700;
-      font-size: 12px;
-    }
-
-    .c1-username {
-      color: #cbd5e1;
-      font-size: 0.82rem;
-      font-weight: 500;
-    }
-
-    /* Hero banner */
-    .c1-hero {
-      background: linear-gradient(135deg, #0d1b35 0%, #0f1e3d 50%, #0a1628 100%);
-      padding: 28px 28px 0;
-      border-bottom: 1px solid #1e2d47;
-    }
-
-    .c1-hero-inner {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 24px;
-    }
-
-    .c1-welcome-line {
-      color: #475569;
-      font-size: 0.78rem;
-      font-weight: 500;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-
-    .c1-hero h2 {
-      color: #f8fafc;
-      font-size: 1.6rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      line-height: 1.2;
-    }
-
-    .c1-hero-sub {
-      color: #64748b;
-      font-size: 0.88rem;
-      margin-top: 6px;
-    }
-
-    .c1-hero-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 16px;
-      padding-bottom: 24px;
-      flex-wrap: wrap;
-    }
-
-    .c1-btn-primary {
-      background: #3b82f6;
-      color: #fff;
-      border: none;
-      border-radius: 9px;
-      padding: 9px 16px;
-      font-weight: 600;
-      font-size: 0.82rem;
-      cursor: pointer;
-      font-family: "Inter", sans-serif;
-    }
-
-    .c1-btn-ghost {
-      background: transparent;
-      color: #94a3b8;
-      border: 1px solid #1e2d47;
-      border-radius: 9px;
-      padding: 9px 16px;
-      font-weight: 600;
-      font-size: 0.82rem;
-      cursor: pointer;
-      font-family: "Inter", sans-serif;
-    }
-
-    /* Stat strip */
-    .c1-stats {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      border-top: 1px solid #1e2d47;
-    }
-
-    .c1-stat {
-      padding: 18px 24px;
-      border-right: 1px solid #1e2d47;
-    }
-
-    .c1-stat:last-child { border-right: none; }
-
-    .c1-stat-label {
-      color: #475569;
-      font-size: 0.72rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 6px;
-    }
-
-    .c1-stat-value {
-      color: #f1f5f9;
-      font-size: 1.35rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-    }
-
-    .c1-stat-sub {
-      margin-top: 3px;
-      font-size: 0.74rem;
-      font-weight: 500;
-    }
-
-    .c1-stat-sub.up { color: #34d399; }
-    .c1-stat-sub.warn { color: #fb923c; }
-    .c1-stat-sub.muted { color: #475569; }
-
-    /* Main grid */
-    .c1-main {
-      padding: 24px 28px;
-      display: grid;
-      grid-template-columns: 1fr 1fr 340px;
-      gap: 16px;
-    }
-
-    .c1-card {
-      background: #111827;
-      border: 1px solid #1e2d47;
-      border-radius: 14px;
-      padding: 18px;
-    }
-
-    .c1-card-title {
-      color: #94a3b8;
-      font-size: 0.72rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .c1-card-title a {
-      color: #3b82f6;
-      text-decoration: none;
-      font-size: 0.72rem;
-      letter-spacing: 0;
-      text-transform: none;
-    }
-
-    .c1-quick-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
-
-    .c1-quick-tile {
-      background: #1a2438;
-      border: 1px solid #1e2d47;
-      border-radius: 12px;
-      padding: 14px;
-      cursor: pointer;
-      transition: background 120ms ease;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .c1-quick-tile:hover { background: #1e2d47; }
-
-    .c1-quick-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      display: grid;
-      place-items: center;
-      font-size: 16px;
-    }
-
-    .c1-quick-tile p {
-      color: #cbd5e1;
-      font-size: 0.78rem;
-      font-weight: 600;
-      line-height: 1.3;
-    }
-
-    .c1-quick-tile small {
-      color: #475569;
-      font-size: 0.7rem;
-    }
-
-    .c1-event-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 10px 0;
-      border-bottom: 1px solid #1a2438;
-    }
-
-    .c1-event-row:last-child { border-bottom: none; }
-
-    .c1-event-date {
-      background: #1a2438;
-      border-radius: 8px;
-      padding: 6px 8px;
-      text-align: center;
-      min-width: 40px;
-      flex-shrink: 0;
-    }
-
-    .c1-event-date .day {
-      color: #f1f5f9;
-      font-size: 1rem;
-      font-weight: 700;
-      display: block;
+    .hamburger {
+      background: none; border: none; color: #fff;
+      font-size: 20px; cursor: pointer; padding: 4px 8px;
       line-height: 1;
     }
+    .mob-logo { color: #fff; font-weight: 800; font-size: 1rem; }
+    .mob-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--primary); color: #fff;
+      font-weight: 700; font-size: 12px;
+      display: grid; place-items: center;
+    }
+    .overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45); z-index: 190;
+    }
+    .overlay.open { display: block; }
 
-    .c1-event-date .mo {
-      color: #475569;
-      font-size: 0.62rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+    @media (max-width: 768px) {
+      .mob-header { display: flex; }
+      .sidebar { transform: translateX(-100%); top: 0; }
+      .sidebar.open { transform: translateX(0); }
+      .main-wrap { margin-left: 0; }
+      .topbar { display: none; }
+      .main-content { padding: 16px; }
     }
 
-    .c1-event-info strong {
-      color: #e2e8f0;
-      font-size: 0.84rem;
-      font-weight: 600;
-      display: block;
-    }
-
-    .c1-event-info span {
-      color: #475569;
-      font-size: 0.74rem;
-    }
-
-    .c1-badge {
-      display: inline-block;
-      padding: 2px 7px;
-      border-radius: 999px;
-      font-size: 0.66rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin-left: 6px;
-    }
-
-    .c1-badge.required { background: #7f1d1d; color: #fca5a5; }
-    .c1-badge.open { background: #14532d; color: #86efac; }
-    .c1-badge.new { background: #1e3a5f; color: #93c5fd; }
-
-    .c1-activity-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 9px 0;
-      border-bottom: 1px solid #1a2438;
-    }
-
-    .c1-activity-item:last-child { border-bottom: none; }
-
-    .c1-activity-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      margin-top: 5px;
+    /* ── SIDEBAR INTERNALS ── */
+    .sidebar-brand {
+      padding: 20px 16px 14px;
+      border-bottom: 1px solid #1f2937;
       flex-shrink: 0;
     }
-
-    .c1-activity-item p {
-      color: #94a3b8;
-      font-size: 0.8rem;
-      line-height: 1.45;
+    .sidebar-brand-row {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
     }
-
-    .c1-activity-item p strong {
-      color: #cbd5e1;
-      font-weight: 600;
+    .sidebar-logo {
+      width: 34px; height: 34px; border-radius: 9px;
+      background: var(--primary); display: grid;
+      place-items: center; color: #fff;
+      font-weight: 800; font-size: 13px; flex-shrink: 0;
     }
+    .sidebar-brand-text strong { color: #f1f5f9; font-size: 0.88rem; display: block; }
+    .sidebar-brand-text span { color: #4b5563; font-size: 0.72rem; }
+    .sidebar-member-card {
+      background: #1f2937; border-radius: 10px; padding: 12px;
+    }
+    .sidebar-member-card .name { color: #f1f5f9; font-size: 0.85rem; font-weight: 600; }
+    .sidebar-member-card .nrds { color: #6b7280; font-size: 0.72rem; margin-top: 2px; }
+    .sidebar-member-card .status-row {
+      display: flex; align-items: center; gap: 6px; margin-top: 8px;
+    }
+    .status-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: #10b981;
+    }
+    .status-dot.warn { background: #f59e0b; }
+    .sidebar-member-card .status-text { color: #9ca3af; font-size: 0.72rem; }
+    .sidebar-member-card .balance { color: #fcd34d; font-size: 0.72rem; margin-top: 4px; }
 
-    .c1-activity-item time {
-      color: #334155;
-      font-size: 0.7rem;
-      flex-shrink: 0;
-      margin-left: auto;
+    .sidebar-nav { flex: 1; padding: 10px 10px 20px; }
+    .nav-group-label {
+      color: #4b5563; font-size: 0.66rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      padding: 10px 8px 4px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px; border-radius: 9px;
+      text-decoration: none; color: var(--sidebar-text);
+      font-size: 0.85rem; font-weight: 500;
+      cursor: pointer; margin-bottom: 1px;
+      transition: background 100ms ease, color 100ms ease;
+      border: none; background: none; width: 100%; text-align: left;
+    }
+    .nav-item:hover { background: var(--sidebar-hover); color: #e2e8f0; }
+    .nav-item.active { background: var(--sidebar-active); color: var(--sidebar-active-text); font-weight: 600; }
+    .nav-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+    .nav-badge {
+      margin-left: auto; background: var(--danger); color: #fff;
+      font-size: 0.62rem; font-weight: 700; border-radius: 999px;
+      padding: 2px 6px; min-width: 18px; text-align: center;
+    }
+    .nav-badge.info { background: var(--primary); }
+    .nav-badge.warn { background: var(--warning); }
+
+    /* ── TOPBAR ── */
+    .topbar-left { display: flex; flex-direction: column; }
+    .topbar-left .page-title { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+    .topbar-left .page-sub { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .topbar-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--primary); color: #fff;
+      font-weight: 700; font-size: 13px;
+      display: grid; place-items: center; flex-shrink: 0;
+    }
+    .topbar-name { font-size: 0.84rem; font-weight: 600; color: var(--text); }
+    .topbar-sub { font-size: 0.72rem; color: var(--muted); }
+
+    /* ── PAGES ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── SHARED COMPONENTS ── */
+    .page-header { margin-bottom: 22px; }
+    .page-header h2 { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.01em; }
+    .page-header p { color: var(--text-2); font-size: 0.88rem; margin-top: 4px; }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow-sm);
+    }
+    .card-title {
+      font-size: 0.8rem; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.06em;
+      margin-bottom: 14px; display: flex;
+      align-items: center; justify-content: space-between;
+    }
+    .card-title a { color: var(--primary); text-decoration: none; font-size: 0.78rem;
+      text-transform: none; letter-spacing: 0; font-weight: 600; }
+
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: 3px 8px; border-radius: 999px;
+      font-size: 0.68rem; font-weight: 700;
       white-space: nowrap;
     }
+    .badge-green { background: var(--success-light); color: var(--success); }
+    .badge-blue { background: var(--primary-light); color: var(--primary); }
+    .badge-amber { background: var(--warning-light); color: var(--warning); }
+    .badge-red { background: var(--danger-light); color: var(--danger); }
+    .badge-gray { background: #f3f4f6; color: #6b7280; }
 
-    .c1-alert {
-      background: #1c1505;
-      border: 1px solid #78350f;
-      border-radius: 10px;
-      padding: 12px 14px;
-      margin-bottom: 12px;
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      border: none; border-radius: 8px; padding: 8px 14px;
+      font-size: 0.82rem; font-weight: 600; cursor: pointer;
+      font-family: "Inter", sans-serif; transition: opacity 120ms ease;
+      text-decoration: none; white-space: nowrap;
+    }
+    .btn:hover { opacity: 0.88; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+    .btn-danger { background: var(--danger-light); color: var(--danger); }
+    .btn-success { background: var(--success-light); color: var(--success); }
+    .btn-sm { padding: 5px 10px; font-size: 0.76rem; }
+    .btn-xs { padding: 3px 8px; font-size: 0.7rem; }
+
+    /* ── STATS ROW ── */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 14px; margin-bottom: 22px;
+    }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      box-shadow: var(--shadow-sm); border-left: 3px solid var(--primary);
+    }
+    .stat-card.warn { border-left-color: var(--warning); }
+    .stat-card.danger { border-left-color: var(--danger); }
+    .stat-card.success { border-left-color: var(--success); }
+    .stat-label { color: var(--muted); font-size: 0.74rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+    .stat-value { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; }
+    .stat-value.success { color: var(--success); }
+    .stat-value.danger { color: var(--danger); }
+    .stat-value.warn { color: var(--warning); }
+    .stat-sub { font-size: 0.74rem; color: var(--muted); margin-top: 3px; }
+
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: repeat(2,1fr); }
     }
 
-    .c1-alert-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
-
-    .c1-alert p { color: #fcd34d; font-size: 0.8rem; font-weight: 500; }
-    .c1-alert p span { color: #fbbf24; font-weight: 700; }
-
-    .c1-progress-bar {
-      height: 5px;
-      background: #1e2d47;
-      border-radius: 999px;
-      margin-top: 6px;
-      overflow: hidden;
+    /* ── TILE GRID ── */
+    .tile-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 12px; margin-bottom: 22px;
     }
-
-    .c1-progress-fill {
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #3b82f6, #06b6d4);
-    }
-
-    .c1-footer-strip {
-      background: #0a0f1e;
-      border-top: 1px solid #1e2d47;
-      padding: 12px 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .c1-footer-strip p {
-      color: #334155;
-      font-size: 0.72rem;
-    }
-
-    .c1-footer-links {
-      display: flex;
-      gap: 16px;
-    }
-
-    .c1-footer-links a {
-      color: #334155;
-      font-size: 0.72rem;
+    .tile {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 14px;
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; gap: 8px; cursor: pointer;
+      transition: box-shadow 120ms ease, border-color 120ms ease;
       text-decoration: none;
     }
-
-    /* ══════════════════════════════════════════════════
-       CONCEPT 2 — MY PORTAL
-       Sidebar with member card + icon-tile quick launch
-       Inspired by Virginia REALTORS / HCAR self-service portals
-    ══════════════════════════════════════════════════ */
-    .c2 {
-      background: #f9fafb;
-      border-radius: 20px;
-      overflow: hidden;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 20px 48px rgba(15,23,42,0.10);
-      display: grid;
-      grid-template-rows: auto 1fr;
-      min-height: 820px;
-    }
-
-    .c2-topbar {
-      background: #fff;
-      border-bottom: 1px solid #e5e7eb;
-      padding: 14px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .c2-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .c2-logo {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: #065f46;
-      display: grid;
-      place-items: center;
-      color: #fff;
-      font-weight: 800;
-      font-size: 13px;
-      letter-spacing: -0.5px;
-    }
-
-    .c2-brand strong {
-      color: #111827;
-      font-size: 0.95rem;
-      font-weight: 700;
-    }
-
-    .c2-brand span {
-      display: block;
-      color: #9ca3af;
-      font-size: 0.72rem;
-    }
-
-    .c2-topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .c2-search {
-      background: #f3f4f6;
-      border: 1px solid #e5e7eb;
-      border-radius: 999px;
-      padding: 7px 14px;
-      font-size: 0.82rem;
-      color: #6b7280;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      width: 200px;
-    }
-
-    .c2-icon-btn {
-      width: 34px;
-      height: 34px;
-      border-radius: 9px;
-      background: #f3f4f6;
-      border: 1px solid #e5e7eb;
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-      color: #6b7280;
-      font-size: 15px;
-      position: relative;
-    }
-
-    .c2-dot {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      width: 7px;
-      height: 7px;
-      background: #ef4444;
-      border-radius: 50%;
-      border: 1.5px solid #fff;
-    }
-
-    .c2-avatar-sm {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #059669, #10b981);
-      display: grid;
-      place-items: center;
-      color: #fff;
-      font-weight: 700;
-      font-size: 12px;
-    }
-
-    /* Body layout */
-    .c2-body {
-      display: grid;
-      grid-template-columns: 280px 1fr;
-    }
-
-    /* Sidebar */
-    .c2-sidebar {
-      background: #fff;
-      border-right: 1px solid #e5e7eb;
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
-
-    .c2-member-card {
-      padding: 20px;
-      background: linear-gradient(160deg, #065f46, #047857);
-      color: #fff;
-    }
-
-    .c2-member-avatar {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.2);
-      border: 2px solid rgba(255,255,255,0.35);
-      display: grid;
-      place-items: center;
-      font-weight: 700;
-      font-size: 18px;
-      margin-bottom: 10px;
-    }
-
-    .c2-member-card h3 {
-      font-size: 1rem;
-      font-weight: 700;
-      margin-bottom: 2px;
-    }
-
-    .c2-member-card .c2-nrds {
-      font-size: 0.72rem;
-      color: #6ee7b7;
-      margin-bottom: 10px;
-    }
-
-    .c2-member-pills {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
-
-    .c2-pill {
-      background: rgba(255,255,255,0.15);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 999px;
-      padding: 3px 9px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: rgba(255,255,255,0.9);
-    }
-
-    .c2-member-status {
-      background: rgba(0,0,0,0.2);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 0.78rem;
-    }
-
-    .c2-member-status .row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 4px;
-    }
-
-    .c2-member-status .row:last-child { margin-bottom: 0; }
-    .c2-member-status .label { color: #6ee7b7; }
-    .c2-member-status .val { color: #fff; font-weight: 600; }
-    .c2-member-status .val.warn { color: #fcd34d; }
-
-    /* Sidebar nav */
-    .c2-nav-section {
-      padding: 14px 14px 4px;
-    }
-
-    .c2-nav-section-label {
-      color: #9ca3af;
-      font-size: 0.68rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      padding: 0 6px;
-      margin-bottom: 6px;
-    }
-
-    .c2-nav-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 9px 10px;
-      border-radius: 10px;
-      text-decoration: none;
-      color: #374151;
-      font-size: 0.86rem;
-      font-weight: 500;
-      transition: background 100ms ease;
-      margin-bottom: 1px;
-    }
-
-    .c2-nav-item:hover { background: #f3f4f6; }
-
-    .c2-nav-item.active {
-      background: #ecfdf5;
-      color: #065f46;
-      font-weight: 600;
-    }
-
-    .c2-nav-icon {
-      font-size: 16px;
-      width: 22px;
-      text-align: center;
-    }
-
-    .c2-nav-badge {
-      margin-left: auto;
-      background: #065f46;
-      color: #fff;
-      font-size: 0.65rem;
-      font-weight: 700;
-      border-radius: 999px;
-      padding: 2px 7px;
-    }
-
-    .c2-nav-badge.warn {
-      background: #dc2626;
-    }
-
-    /* Main content */
-    .c2-main {
-      padding: 22px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      overflow-y: auto;
-    }
-
-    .c2-section-title {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: #9ca3af;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      margin-bottom: 10px;
-    }
-
-    /* Large icon launch tiles */
-    .c2-tile-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-    }
-
-    .c2-tile {
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 16px;
-      padding: 18px 14px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 10px;
-      cursor: pointer;
-      transition: all 120ms ease;
-      text-decoration: none;
-    }
-
-    .c2-tile:hover {
-      border-color: #d1fae5;
-      box-shadow: 0 4px 16px rgba(16,185,129,0.1);
-      transform: translateY(-1px);
-    }
-
-    .c2-tile-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      display: grid;
-      place-items: center;
-      font-size: 22px;
-    }
-
-    .c2-tile strong {
-      color: #111827;
-      font-size: 0.82rem;
-      font-weight: 600;
-      display: block;
-    }
-
-    .c2-tile small {
-      color: #9ca3af;
-      font-size: 0.72rem;
-      display: block;
-      margin-top: 2px;
-    }
-
-    .c2-tile .c2-count {
-      background: #065f46;
-      color: #fff;
-      font-size: 0.68rem;
-      font-weight: 700;
-      border-radius: 999px;
+    .tile:hover { box-shadow: var(--shadow); border-color: #cbd5e1; }
+    .tile-icon { font-size: 22px; line-height: 1; }
+    .tile-label { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+    .tile-sub { font-size: 0.72rem; color: var(--muted); }
+    .tile-badge {
+      font-size: 0.68rem; font-weight: 700; border-radius: 999px;
       padding: 2px 8px;
     }
+    .tile-badge.action { background: var(--danger-light); color: var(--danger); }
+    .tile-badge.info { background: var(--primary-light); color: var(--primary); }
+    .tile-badge.warn { background: var(--warning-light); color: var(--warning); }
+    .tile-badge.ok { background: var(--success-light); color: var(--success); }
+    .tile-badge.neutral { background: #f1f5f9; color: var(--text-2); }
 
-    .c2-tile .c2-count.warn { background: #dc2626; }
-    .c2-tile .c2-count.amber { background: #d97706; }
-
-    /* Two-col content */
-    .c2-two-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
+    @media (max-width: 900px) {
+      .tile-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    }
+    @media (max-width: 600px) {
+      .tile-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
     }
 
-    .c2-panel {
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
-      padding: 16px;
+    /* ── TWO AND THREE COL GRIDS ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    @media (max-width: 900px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 640px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .grid-3 { grid-template-columns: 1fr; }
     }
 
-    .c2-panel h4 {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #111827;
+    /* ── PROGRESS BARS ── */
+    .progress-wrap { margin-bottom: 12px; }
+    .progress-meta { display: flex; justify-content: space-between;
+      margin-bottom: 5px; }
+    .progress-meta span { font-size: 0.8rem; color: var(--text-2); font-weight: 500; }
+    .progress-meta strong { font-size: 0.8rem; color: var(--primary); font-weight: 700; }
+    .progress-bar { height: 6px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 999px; background: var(--primary); }
+    .progress-sub { font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
+
+    /* ── TABS ── */
+    .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 18px; overflow-x: auto; }
+    .tab-btn {
+      border: none; background: none; padding: 10px 16px;
+      font-size: 0.84rem; font-weight: 500; color: var(--muted);
+      cursor: pointer; font-family: "Inter", sans-serif;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      white-space: nowrap; transition: all 120ms ease;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── TABLES ── */
+    .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.84rem; background: var(--surface); }
+    th { text-align: left; padding: 10px 14px; background: #f8fafc;
+      color: var(--muted); font-size: 0.72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border); }
+    td { padding: 11px 14px; border-bottom: 1px solid #f1f5f9; color: var(--text-2); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    td strong { color: var(--text); font-weight: 600; }
+    tr:hover td { background: #fafafa; }
+
+    /* ── ACTIVITY LIST ── */
+    .activity-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 11px 0; border-bottom: 1px solid #f1f5f9;
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+    .activity-body { flex: 1; min-width: 0; }
+    .activity-body p { font-size: 0.84rem; color: var(--text); line-height: 1.45; }
+    .activity-body span { font-size: 0.74rem; color: var(--muted); }
+    .activity-time { font-size: 0.72rem; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
+
+    /* ── EVENT CARDS ── */
+    .event-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 10px; transition: box-shadow 120ms ease;
+    }
+    .event-card:hover { box-shadow: var(--shadow); }
+    .event-card.border-blue { border-left: 3px solid var(--primary); }
+    .event-card.border-green { border-left: 3px solid var(--success); }
+    .event-card.border-gray { border-left: 3px solid #cbd5e1; }
+    .event-card.border-amber { border-left: 3px solid var(--warning); }
+    .event-date {
+      background: #f1f5f9; border-radius: 8px; padding: 8px 10px;
+      text-align: center; min-width: 44px; flex-shrink: 0;
+    }
+    .event-date .day { font-size: 1.1rem; font-weight: 800; color: var(--text); display: block; line-height: 1; }
+    .event-date .mo { font-size: 0.65rem; font-weight: 600; color: var(--muted); text-transform: uppercase; }
+    .event-info { flex: 1; min-width: 0; }
+    .event-info strong { font-size: 0.9rem; font-weight: 600; color: var(--text); display: block; }
+    .event-info .meta { font-size: 0.76rem; color: var(--muted); margin-top: 3px; }
+    .event-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    @media (max-width: 600px) {
+      .event-card { flex-wrap: wrap; }
+      .event-actions { width: 100%; justify-content: flex-end; }
+    }
+
+    /* ── MEETING ROWS ── */
+    .meeting-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid #f1f5f9;
+    }
+    .meeting-row:last-child { border-bottom: none; }
+    .meeting-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .meeting-info { flex: 1; min-width: 0; }
+    .meeting-info strong { font-size: 0.85rem; font-weight: 600; color: var(--text); display: block; }
+    .meeting-info span { font-size: 0.74rem; color: var(--muted); }
+
+    /* ── COURSE CARDS ── */
+    .course-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
       margin-bottom: 12px;
     }
+    .course-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .course-title { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+    .course-meta { font-size: 0.76rem; color: var(--muted); margin-top: 3px; }
 
-    .c2-ce-track {
-      margin-bottom: 10px;
+    /* ── MEMBER DIRECTORY CARDS ── */
+    .member-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+    @media (max-width: 900px) { .member-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 480px) { .member-grid { grid-template-columns: 1fr; } }
+    .member-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px; text-align: center;
+      box-shadow: var(--shadow-sm);
     }
-
-    .c2-ce-track .ce-meta {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 5px;
+    .member-avatar {
+      width: 50px; height: 50px; border-radius: 50%;
+      display: grid; place-items: center; font-size: 16px; font-weight: 700;
+      color: #fff; margin: 0 auto 10px;
     }
+    .member-name { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+    .member-role { font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
+    .member-district { font-size: 0.72rem; color: var(--primary); margin-top: 4px; font-weight: 600; }
 
-    .c2-ce-track .ce-meta span { font-size: 0.78rem; color: #374151; font-weight: 500; }
-    .c2-ce-track .ce-meta strong { font-size: 0.78rem; color: #065f46; font-weight: 700; }
-
-    .c2-bar {
-      height: 6px;
-      background: #f3f4f6;
-      border-radius: 999px;
-      overflow: hidden;
+    /* ── RESOURCES SSO TILES ── */
+    .sso-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 22px; }
+    @media (max-width: 800px) { .sso-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 480px) { .sso-grid { grid-template-columns: 1fr; } }
+    .sso-tile {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px;
+      display: flex; flex-direction: column; gap: 6px;
+      box-shadow: var(--shadow-sm); transition: box-shadow 120ms ease;
     }
+    .sso-tile:hover { box-shadow: var(--shadow); }
+    .sso-tile.coming-soon { opacity: 0.5; pointer-events: none; }
+    .sso-icon { font-size: 24px; }
+    .sso-name { font-size: 0.92rem; font-weight: 700; color: var(--text); }
+    .sso-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.45; flex: 1; }
+    .sso-launch { margin-top: 8px; align-self: flex-start; }
 
-    .c2-bar-fill {
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #059669, #34d399);
+    /* ── CUSTOM WIDGET ZONE ── */
+    .widget-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+    @media (max-width: 900px) { .widget-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .widget-grid { grid-template-columns: 1fr; } }
+    .widget-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px; min-height: 140px;
     }
-
-    .c2-meeting-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 0;
-      border-bottom: 1px solid #f3f4f6;
+    .widget-add-card {
+      background: var(--surface); border: 2px dashed #cbd5e1;
+      border-radius: var(--radius); padding: 16px; min-height: 140px;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 8px; cursor: pointer;
+      transition: border-color 120ms ease;
     }
+    .widget-add-card:hover { border-color: var(--primary); }
+    .widget-add-icon { font-size: 24px; color: var(--muted); }
+    .widget-add-label { font-size: 0.82rem; font-weight: 600; color: var(--muted); }
+    .widget-add-sub { font-size: 0.74rem; color: #cbd5e1; text-align: center; }
 
-    .c2-meeting-row:last-child { border-bottom: none; }
+    /* fake chart bars */
+    .mini-chart { display: flex; align-items: flex-end; gap: 6px; height: 48px; margin: 10px 0; }
+    .bar { flex: 1; border-radius: 4px 4px 0 0; background: var(--primary-light); min-width: 12px; }
+    .bar.hi { background: var(--primary); }
+    .chart-labels { display: flex; gap: 6px; }
+    .chart-labels span { flex: 1; font-size: 0.62rem; color: var(--muted); text-align: center; }
 
-    .c2-meeting-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
+    /* ── STORE ── */
+    .store-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+    @media (max-width: 900px) { .store-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .store-grid { grid-template-columns: 1fr; } }
+    .store-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px;
+      display: flex; flex-direction: column; gap: 8px;
+      box-shadow: var(--shadow-sm);
     }
+    .store-icon { font-size: 28px; }
+    .store-name { font-size: 0.88rem; font-weight: 700; color: var(--text); }
+    .store-desc { font-size: 0.76rem; color: var(--muted); flex: 1; }
+    .store-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+    .store-price { font-size: 1rem; font-weight: 700; color: var(--text); }
+    .store-price.free { color: var(--success); }
 
-    .c2-meeting-row .info { flex: 1; min-width: 0; }
-    .c2-meeting-row .info strong { font-size: 0.82rem; color: #111827; font-weight: 600; display: block; }
-    .c2-meeting-row .info span { font-size: 0.72rem; color: #9ca3af; }
-
-    .c2-meeting-row .c2-rsvp {
-      background: #065f46;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 4px 8px;
-      font-size: 0.68rem;
-      font-weight: 700;
-      cursor: pointer;
-      font-family: "Inter", sans-serif;
-      white-space: nowrap;
+    /* ── ELECTIONS ── */
+    .election-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px; margin-bottom: 14px;
     }
-
-    .c2-meeting-row .c2-rsvp.pending {
-      background: #fef3c7;
-      color: #92400e;
-    }
-
-    .c2-three-col {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-    }
-
-    .c2-action-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 9px 0;
-      border-bottom: 1px solid #f3f4f6;
-    }
-
-    .c2-action-item:last-child { border-bottom: none; }
-
-    .c2-action-icon-wrap {
-      width: 30px;
-      height: 30px;
-      border-radius: 8px;
-      display: grid;
-      place-items: center;
-      font-size: 14px;
-      flex-shrink: 0;
-    }
-
-    .c2-action-item .meta { flex: 1; min-width: 0; }
-    .c2-action-item .meta p { font-size: 0.8rem; color: #111827; font-weight: 500; }
-    .c2-action-item .meta span { font-size: 0.72rem; color: #9ca3af; }
-
-    .c2-action-item .due {
-      font-size: 0.7rem;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .c2-action-item .due.urgent { color: #dc2626; }
-    .c2-action-item .due.ok { color: #059669; }
-
-    /* ══════════════════════════════════════════════════
-       CONCEPT 3 — MEMBER BRIEFING
-       Editorial swimlane layout, no sidebar
-       Three content pillars: INFORM / LEARN / ACT
-       Inspired by NAR's member benefit structure
-    ══════════════════════════════════════════════════ */
-    .c3 {
-      background: #fffbf5;
-      border-radius: 20px;
-      overflow: hidden;
-      border: 1px solid #e7e0d6;
-      box-shadow: 0 20px 48px rgba(120,80,40,0.10);
-      min-height: 820px;
-    }
-
-    .c3-topbar {
-      background: #fff;
-      border-bottom: 1px solid #e7e0d6;
-      padding: 0 32px;
-      display: flex;
-      align-items: center;
-      gap: 0;
-    }
-
-    .c3-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 16px 0;
-      margin-right: 40px;
-      flex-shrink: 0;
-    }
-
-    .c3-logo {
-      width: 34px;
-      height: 34px;
-      border-radius: 8px;
-      background: #92400e;
-      display: grid;
-      place-items: center;
-      font-weight: 800;
-      font-size: 12px;
-      color: #fff;
-    }
-
-    .c3-brand strong {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #1c1009;
-    }
-
-    .c3-brand span {
-      display: block;
-      color: #a8917a;
-      font-size: 0.68rem;
-    }
-
-    .c3-nav {
-      display: flex;
-      gap: 0;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-
-    .c3-nav::-webkit-scrollbar { display: none; }
-
-    .c3-nav a {
-      text-decoration: none;
-      color: #7c6757;
+    .election-title { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .election-meta { font-size: 0.78rem; color: var(--muted); margin-bottom: 14px; }
+    .candidates { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    @media (max-width: 500px) { .candidates { grid-template-columns: 1fr; } }
+    .candidate {
+      border: 1px solid var(--border); border-radius: 9px; padding: 12px;
       font-size: 0.82rem;
-      font-weight: 500;
-      padding: 0 14px;
-      height: 56px;
-      display: flex;
-      align-items: center;
-      border-bottom: 2px solid transparent;
-      white-space: nowrap;
-      transition: all 120ms ease;
+    }
+    .candidate strong { display: block; font-size: 0.88rem; color: var(--text); }
+    .candidate span { color: var(--muted); }
+
+    /* ── CONTRIBUTE ── */
+    .pledge-bar-wrap { background: #f1f5f9; border-radius: 999px; height: 10px; margin: 10px 0; overflow: hidden; }
+    .pledge-bar-fill { height: 100%; border-radius: 999px; background: var(--primary); }
+
+    /* ── BILLING ALERT ── */
+    .billing-alert {
+      background: var(--warning-light); border: 1px solid #fde68a;
+      border-radius: var(--radius); padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 18px; flex-wrap: wrap;
+    }
+    .billing-alert p { font-size: 0.88rem; font-weight: 600; color: #92400e; flex: 1; }
+
+    /* ── SEARCH BAR ── */
+    .search-bar {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 9px; padding: 9px 14px; margin-bottom: 14px;
+    }
+    .search-bar input {
+      border: none; outline: none; font-size: 0.88rem;
+      font-family: "Inter", sans-serif; flex: 1; background: none; color: var(--text);
+    }
+    .search-icon { color: var(--muted); font-size: 14px; }
+
+    /* ── FILTER TABS (pill style) ── */
+    .filter-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+    .filter-btn {
+      border: 1px solid var(--border); background: var(--surface);
+      border-radius: 999px; padding: 5px 12px; font-size: 0.78rem;
+      font-weight: 500; color: var(--text-2); cursor: pointer;
+      font-family: "Inter", sans-serif; transition: all 100ms ease;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--primary); border-color: var(--primary); color: #fff;
     }
 
-    .c3-nav a:hover { color: #3d2b1f; }
-
-    .c3-nav a.active {
-      color: #92400e;
-      border-bottom-color: #92400e;
-      font-weight: 600;
+    /* ── MODAL ── */
+    .modal-backdrop {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45); z-index: 500;
+      align-items: center; justify-content: center; padding: 16px;
     }
-
-    .c3-user {
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-shrink: 0;
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--surface); border-radius: 16px;
+      padding: 24px; max-width: 480px; width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
     }
-
-    .c3-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #92400e, #b45309);
-      display: grid;
-      place-items: center;
-      color: #fff;
-      font-weight: 700;
-      font-size: 12px;
+    .modal h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
+    .modal .modal-sub { font-size: 0.84rem; color: var(--muted); margin-bottom: 18px; }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    .modal-radio { margin: 8px 0; }
+    .modal-radio label {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px;
+      cursor: pointer; transition: border-color 120ms ease;
     }
+    .modal-radio label:has(input:checked) { border-color: var(--primary); background: var(--primary-light); }
+    .modal-radio input { margin-top: 2px; accent-color: var(--primary); }
+    .modal-radio .cand-name { font-weight: 600; font-size: 0.88rem; }
+    .modal-radio .cand-bio { font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
 
-    .c3-username { color: #7c6757; font-size: 0.82rem; font-weight: 600; }
-
-    /* Status strip */
-    .c3-status-strip {
-      background: linear-gradient(135deg, #7c2d12, #92400e);
-      padding: 14px 32px;
-      display: flex;
-      align-items: center;
-      gap: 32px;
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 20px; right: 20px;
+      background: #111827; color: #fff; font-size: 0.84rem; font-weight: 500;
+      padding: 10px 16px; border-radius: 9px; z-index: 600;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      transform: translateY(60px); opacity: 0;
+      transition: all 220ms ease;
     }
+    .toast.show { transform: translateY(0); opacity: 1; }
 
-    .c3-status-item {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+    /* ── SECTION DIVIDER ── */
+    .section-gap { margin-bottom: 22px; }
+    .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+    /* ── UTILITY ── */
+    .flex-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .flex-between { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .mt-4 { margin-top: 4px; }
+    .mt-8 { margin-top: 8px; }
+    .mt-12 { margin-top: 12px; }
+    .mt-16 { margin-top: 16px; }
+    .mb-12 { margin-bottom: 12px; }
+    .mb-16 { margin-bottom: 16px; }
+    .text-sm { font-size: 0.82rem; }
+    .text-xs { font-size: 0.74rem; }
+    .text-muted { color: var(--muted); }
+    .text-primary { color: var(--primary); }
+    .font-600 { font-weight: 600; }
+    .font-700 { font-weight: 700; }
+
+    /* ── FOOTER ── */
+    .portal-footer {
+      background: var(--surface); border-top: 1px solid var(--border);
+      padding: 14px 28px; font-size: 0.74rem; color: var(--muted);
+      display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
     }
-
-    .c3-status-item .label {
-      color: rgba(255,255,255,0.55);
-      font-size: 0.68rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    .c3-status-item .val {
-      color: #fff;
-      font-size: 0.88rem;
-      font-weight: 700;
-    }
-
-    .c3-status-item .val.ok { color: #6ee7b7; }
-    .c3-status-item .val.warn { color: #fde68a; }
-
-    .c3-status-divider {
-      width: 1px;
-      height: 28px;
-      background: rgba(255,255,255,0.15);
-    }
-
-    .c3-status-cta {
-      margin-left: auto;
-      display: flex;
-      gap: 8px;
-    }
-
-    .c3-status-btn {
-      background: rgba(255,255,255,0.15);
-      border: 1px solid rgba(255,255,255,0.25);
-      color: #fff;
-      border-radius: 8px;
-      padding: 7px 14px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: "Inter", sans-serif;
-      transition: background 120ms ease;
-    }
-
-    .c3-status-btn:hover { background: rgba(255,255,255,0.25); }
-    .c3-status-btn.solid { background: #fff; color: #92400e; }
-    .c3-status-btn.solid:hover { background: #fef3c7; }
-
-    /* Hero */
-    .c3-hero {
-      padding: 32px 32px 24px;
-      border-bottom: 1px solid #e7e0d6;
-      display: grid;
-      grid-template-columns: 1fr 360px;
-      gap: 32px;
-      align-items: start;
-    }
-
-    .c3-today-label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: #92400e;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 8px;
-    }
-
-    .c3-hero h2 {
-      font-family: "DM Serif Display", serif;
-      font-size: 2.1rem;
-      color: #1c1009;
-      line-height: 1.15;
-      letter-spacing: -0.01em;
-    }
-
-    .c3-hero-sub {
-      color: #7c6757;
-      font-size: 0.92rem;
-      margin-top: 10px;
-      line-height: 1.6;
-      max-width: 55ch;
-    }
-
-    .c3-hero-cta {
-      display: flex;
-      gap: 8px;
-      margin-top: 18px;
-      flex-wrap: wrap;
-    }
-
-    .c3-btn-primary {
-      background: #92400e;
-      color: #fff;
-      border: none;
-      border-radius: 9px;
-      padding: 10px 18px;
-      font-weight: 600;
-      font-size: 0.84rem;
-      cursor: pointer;
-      font-family: "Inter", sans-serif;
-    }
-
-    .c3-btn-outline {
-      background: transparent;
-      color: #92400e;
-      border: 1.5px solid #d4b896;
-      border-radius: 9px;
-      padding: 10px 18px;
-      font-weight: 600;
-      font-size: 0.84rem;
-      cursor: pointer;
-      font-family: "Inter", sans-serif;
-    }
-
-    /* Urgent actions sidebar in hero */
-    .c3-urgent {
-      background: #fff;
-      border: 1px solid #e7e0d6;
-      border-radius: 16px;
-      padding: 16px;
-    }
-
-    .c3-urgent h4 {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: #9ca3af;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      margin-bottom: 12px;
-    }
-
-    .c3-urgent-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 9px 0;
-      border-bottom: 1px solid #faf5ef;
-    }
-
-    .c3-urgent-item:last-child { border-bottom: none; }
-
-    .c3-urgent-emoji { font-size: 16px; flex-shrink: 0; }
-
-    .c3-urgent-item .body p {
-      font-size: 0.82rem;
-      color: #1c1009;
-      font-weight: 500;
-    }
-
-    .c3-urgent-item .body span {
-      font-size: 0.72rem;
-      color: #a8917a;
-    }
-
-    .c3-urgent-item .action {
-      margin-left: auto;
-      flex-shrink: 0;
-    }
-
-    .c3-act-link {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: #92400e;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-
-    /* Three pillar columns */
-    .c3-pillars {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      border-top: 1px solid #e7e0d6;
-    }
-
-    .c3-pillar {
-      padding: 24px;
-      border-right: 1px solid #e7e0d6;
-    }
-
-    .c3-pillar:last-child { border-right: none; }
-
-    .c3-pillar-head {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 16px;
-      padding-bottom: 14px;
-      border-bottom: 2px solid;
-    }
-
-    .c3-pillar-icon {
-      width: 28px;
-      height: 28px;
-      border-radius: 7px;
-      display: grid;
-      place-items: center;
-      font-size: 14px;
-    }
-
-    .c3-pillar-head strong {
-      font-size: 0.72rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-
-    .c3-pillar-head .sub {
-      font-size: 0.65rem;
-      font-weight: 500;
-      letter-spacing: 0;
-      text-transform: none;
-      display: block;
-      margin-top: 1px;
-    }
-
-    /* Pillar colors */
-    .c3-pillar-inform .c3-pillar-head { border-bottom-color: #b45309; }
-    .c3-pillar-inform .c3-pillar-head strong { color: #92400e; }
-    .c3-pillar-inform .c3-pillar-head .sub { color: #a8917a; }
-    .c3-pillar-inform .c3-pillar-icon { background: #fef3c7; }
-
-    .c3-pillar-learn .c3-pillar-head { border-bottom-color: #1d4ed8; }
-    .c3-pillar-learn .c3-pillar-head strong { color: #1e40af; }
-    .c3-pillar-learn .c3-pillar-head .sub { color: #93c5fd; color: #9ca3af; }
-    .c3-pillar-learn .c3-pillar-icon { background: #dbeafe; }
-
-    .c3-pillar-act .c3-pillar-head { border-bottom-color: #16a34a; }
-    .c3-pillar-act .c3-pillar-head strong { color: #15803d; }
-    .c3-pillar-act .c3-pillar-head .sub { color: #9ca3af; }
-    .c3-pillar-act .c3-pillar-icon { background: #dcfce7; }
-
-    /* Story card */
-    .c3-story {
-      padding: 11px 0;
-      border-bottom: 1px solid #f5ede3;
-    }
-
-    .c3-story:last-child { border-bottom: none; }
-
-    .c3-story-tag {
-      font-size: 0.65rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 4px;
-    }
-
-    .c3-story h5 {
-      font-size: 0.86rem;
-      font-weight: 600;
-      color: #1c1009;
-      line-height: 1.35;
-      margin-bottom: 4px;
-    }
-
-    .c3-story p {
-      font-size: 0.76rem;
-      color: #7c6757;
-      line-height: 1.5;
-    }
-
-    /* Course progress */
-    .c3-course {
-      padding: 11px 0;
-      border-bottom: 1px solid #f3f4f6;
-    }
-
-    .c3-course:last-child { border-bottom: none; }
-
-    .c3-course .course-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 8px;
-      margin-bottom: 5px;
-    }
-
-    .c3-course .course-head h5 {
-      font-size: 0.83rem;
-      font-weight: 600;
-      color: #111827;
-      line-height: 1.3;
-    }
-
-    .c3-course .pct {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: #1d4ed8;
-      white-space: nowrap;
-    }
-
-    .c3-course .course-bar {
-      height: 4px;
-      background: #dbeafe;
-      border-radius: 999px;
-      overflow: hidden;
-      margin-bottom: 4px;
-    }
-
-    .c3-course .course-bar-fill {
-      height: 100%;
-      background: #3b82f6;
-      border-radius: 999px;
-    }
-
-    .c3-course .due { font-size: 0.7rem; color: #9ca3af; }
-
-    /* Action checklist */
-    .c3-check-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 10px 0;
-      border-bottom: 1px solid #f0fdf4;
-    }
-
-    .c3-check-item:last-child { border-bottom: none; }
-
-    .c3-checkbox {
-      width: 18px;
-      height: 18px;
-      border-radius: 5px;
-      border: 1.5px solid #d1d5db;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-
-    .c3-checkbox.checked {
-      background: #16a34a;
-      border-color: #16a34a;
-      display: grid;
-      place-items: center;
-      color: #fff;
-      font-size: 10px;
-    }
-
-    .c3-check-item .body p {
-      font-size: 0.82rem;
-      color: #111827;
-      font-weight: 500;
-    }
-
-    .c3-check-item .body span {
-      font-size: 0.72rem;
-      color: #9ca3af;
-    }
-
-    .c3-check-item .cta-link {
-      margin-left: auto;
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: #15803d;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-
-    /* Footer */
-    .c3-footer {
-      background: #fff;
-      border-top: 1px solid #e7e0d6;
-      padding: 14px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .c3-footer p { color: #a8917a; font-size: 0.72rem; }
-
-    .c3-footer-links { display: flex; gap: 14px; }
-    .c3-footer-links a { color: #a8917a; font-size: 0.72rem; text-decoration: none; }
-
-    /* ─── RESPONSIVE ───────────────────────────────── */
-    @media (max-width: 1100px) {
-      .c1-main { grid-template-columns: 1fr 1fr; }
-      .c1-stats { grid-template-columns: repeat(3, 1fr); }
-      .c2-body { grid-template-columns: 240px 1fr; }
-      .c3-hero { grid-template-columns: 1fr; }
-      .c3-pillars { grid-template-columns: 1fr; }
-      .c3-pillar { border-right: none; border-bottom: 1px solid #e7e0d6; }
-    }
-
-    @media (max-width: 860px) {
-      .c1-main { grid-template-columns: 1fr; }
-      .c1-stats { grid-template-columns: repeat(2, 1fr); }
-      .c1-quick-grid { grid-template-columns: repeat(2, 1fr); }
-      .c2-body { grid-template-columns: 1fr; }
-      .c2-sidebar { border-right: none; border-bottom: 1px solid #e5e7eb; }
-      .c2-tile-grid { grid-template-columns: repeat(2, 1fr); }
-      .c2-two-col { grid-template-columns: 1fr; }
-      .c2-three-col { grid-template-columns: 1fr; }
-      .switcher button { padding: 7px 11px; font-size: 0.76rem; }
-    }
+    .portal-footer a { color: var(--primary); text-decoration: none; }
   </style>
 </head>
-
 <body>
-  <!-- ─── META SWITCHER ───────────────────────────── -->
-  <div class="meta-bar">
-    <span class="meta-label">Realtor Association &mdash; Member Dashboard Concepts</span>
-    <div class="switcher" aria-label="Switch design concept">
-      <button class="active" data-concept="c1">
-        ① Operations Command Center
-      </button>
-      <button data-concept="c2">
-        ② My Portal
-      </button>
-      <button data-concept="c3">
-        ③ Member Briefing
-      </button>
+
+<!-- ── MOBILE HEADER ── -->
+<header class="mob-header">
+  <button class="hamburger" id="hamburger" aria-label="Open menu">&#9776;</button>
+  <span class="mob-logo">Realtors Association</span>
+  <div class="mob-avatar">JL</div>
+</header>
+
+<!-- ── SIDEBAR OVERLAY ── -->
+<div class="overlay" id="overlay"></div>
+
+<!-- ════════════════════════════════════
+     SIDEBAR
+════════════════════════════════════ -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-row">
+      <div class="sidebar-logo">RA</div>
+      <div class="sidebar-brand-text">
+        <strong>Realtors Association</strong>
+        <span>Member Portal</span>
+      </div>
+    </div>
+    <div class="sidebar-member-card">
+      <div class="name">Jordan Lee</div>
+      <div class="nrds">NRDS# 12345678 &bull; Dist. 4</div>
+      <div class="status-row">
+        <div class="status-dot"></div>
+        <span class="status-text">Active Membership</span>
+      </div>
+      <div class="balance">&#9888; $79 balance due &mdash; Mar 30</div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════
-       CONCEPT 1 — OPERATIONS COMMAND CENTER
-       Dark, horizontal nav, full-width stat strip
-       Based on MetroTex 2025 member portal rebuild
-  ══════════════════════════════════════════════ -->
-  <div class="concept active" id="c1">
-    <div class="c1">
-      <!-- Top navigation bar -->
-      <header class="c1-topbar">
-        <div class="c1-brand">
-          <div class="c1-logo">RE</div>
-          <div class="c1-brand-text">
-            <strong>Metro Realtors Association</strong>
-            <span>Member Portal</span>
-          </div>
-        </div>
+  <div class="sidebar-nav">
+    <div class="nav-group-label">Overview</div>
+    <button class="nav-item active" data-page="dashboard">
+      <span class="nav-icon">&#127968;</span> Dashboard
+    </button>
 
-        <nav class="c1-nav">
-          <a href="#" class="active">Home</a>
-          <a href="#">Calendar</a>
-          <a href="#">Courses</a>
-          <a href="#">Meetings</a>
-          <a href="#">Directory</a>
-          <a href="#">Contribute</a>
-          <a href="#">Committees</a>
-          <a href="#">Billing</a>
-          <a href="#">Elections</a>
-          <a href="#">Store</a>
-        </nav>
+    <div class="nav-group-label">Participation</div>
+    <button class="nav-item" data-page="calendar">
+      <span class="nav-icon">&#128197;</span> Calendar of Events
+    </button>
+    <button class="nav-item" data-page="courses">
+      <span class="nav-icon">&#127891;</span> Course List
+      <span class="nav-badge info">2</span>
+    </button>
+    <button class="nav-item" data-page="meetings">
+      <span class="nav-icon">&#128203;</span> Meeting List
+      <span class="nav-badge">1</span>
+    </button>
+    <button class="nav-item" data-page="committees">
+      <span class="nav-icon">&#127963;</span> Committees
+    </button>
+    <button class="nav-item" data-page="elections">
+      <span class="nav-icon">&#128499;</span> Elections
+      <span class="nav-badge">Vote</span>
+    </button>
+    <button class="nav-item" data-page="contribute">
+      <span class="nav-icon">&#128156;</span> Contribute
+    </button>
 
-        <div class="c1-user">
-          <div class="c1-notif">
-            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-            <div class="c1-notif-dot"></div>
-          </div>
-          <div class="c1-avatar">JL</div>
-          <span class="c1-username">Jordan Lee</span>
-        </div>
-      </header>
+    <div class="nav-group-label">Account</div>
+    <button class="nav-item" data-page="directory">
+      <span class="nav-icon">&#128101;</span> Member Directory
+    </button>
+    <button class="nav-item" data-page="billing">
+      <span class="nav-icon">&#128179;</span> Billing
+      <span class="nav-badge warn">$79</span>
+    </button>
+    <button class="nav-item" data-page="store">
+      <span class="nav-icon">&#128722;</span> Online Store
+    </button>
+    <button class="nav-item" data-page="resources">
+      <span class="nav-icon">&#128279;</span> Resources &amp; SSO
+    </button>
+  </div>
+</nav>
 
-      <!-- Hero + welcome -->
-      <div class="c1-hero">
-        <div class="c1-hero-inner">
-          <div>
-            <div class="c1-welcome-line">Monday, March 2, 2026</div>
-            <h2>Good morning, Jordan.</h2>
-            <p class="c1-hero-sub">You have 3 items requiring action and 2 upcoming events this week.</p>
-            <div class="c1-hero-actions">
-              <button class="c1-btn-primary">Pay outstanding invoice &rarr;</button>
-              <button class="c1-btn-ghost">Download letter of good standing</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Stat strip -->
-      <div class="c1-stats">
-        <div class="c1-stat">
-          <div class="c1-stat-label">Membership status</div>
-          <div class="c1-stat-value">Active</div>
-          <div class="c1-stat-sub up">&#10003; Dues current</div>
-        </div>
-        <div class="c1-stat">
-          <div class="c1-stat-label">Outstanding balance</div>
-          <div class="c1-stat-value">$79</div>
-          <div class="c1-stat-sub warn">MLS add-on — due Mar 30</div>
-        </div>
-        <div class="c1-stat">
-          <div class="c1-stat-label">CE credits</div>
-          <div class="c1-stat-value">10 / 14</div>
-          <div class="c1-stat-sub muted">Deadline: Jun 30, 2026</div>
-        </div>
-        <div class="c1-stat">
-          <div class="c1-stat-label">Open committee actions</div>
-          <div class="c1-stat-value">3</div>
-          <div class="c1-stat-sub warn">1 RSVP overdue</div>
-        </div>
-        <div class="c1-stat">
-          <div class="c1-stat-label">Events this month</div>
-          <div class="c1-stat-value">8</div>
-          <div class="c1-stat-sub up">2 registered</div>
-        </div>
-      </div>
-
-      <!-- Main 3-col grid -->
-      <div class="c1-main">
-
-        <!-- Quick actions -->
-        <div class="c1-card">
-          <div class="c1-card-title">
-            Quick actions
-            <a href="#">See all</a>
-          </div>
-          <div class="c1-quick-grid">
-            <div class="c1-quick-tile">
-              <div class="c1-quick-icon" style="background:#1a2e4a;">📋</div>
-              <p>My Classes</p>
-              <small>2 in progress</small>
-            </div>
-            <div class="c1-quick-tile">
-              <div class="c1-quick-icon" style="background:#1c3028;">📅</div>
-              <p>Register for event</p>
-              <small>8 this month</small>
-            </div>
-            <div class="c1-quick-tile">
-              <div class="c1-quick-icon" style="background:#2a1f08;">💳</div>
-              <p>Pay invoice</p>
-              <small>$79 due</small>
-            </div>
-            <div class="c1-quick-tile">
-              <div class="c1-quick-icon" style="background:#1a2438;">🏛️</div>
-              <p>My Committees</p>
-              <small>2 active</small>
-            </div>
-            <div class="c1-quick-tile">
-              <div class="c1-quick-icon" style="background:#1e1730;">🗳️</div>
-              <p>Vote: Elections</p>
-              <small>Closes Mar 21</small>
-            </div>
-            <div class="c1-quick-tile">
-              <div class="c1-quick-icon" style="background:#251818;">📄</div>
-              <p>Good standing letter</p>
-              <small>Download now</small>
-            </div>
-            <div class="c1-quick-tile">
-              <div class="c1-quick-icon" style="background:#0f1f1f;">🔍</div>
-              <p>Member directory</p>
-              <small>4,200+ members</small>
-            </div>
-            <div class="c1-quick-tile">
-              <div class="c1-quick-icon" style="background:#1a1a2e;">🛍️</div>
-              <p>Online store</p>
-              <small>Forms &amp; toolkits</small>
-            </div>
-            <div class="c1-quick-tile">
-              <div class="c1-quick-icon" style="background:#1e2415;">💚</div>
-              <p>Contribute RPAC</p>
-              <small>83% of goal</small>
-            </div>
-          </div>
-        </div>
-
-        <!-- Upcoming events -->
-        <div class="c1-card">
-          <div class="c1-card-title">
-            Upcoming events &amp; meetings
-            <a href="#">Full calendar</a>
-          </div>
-
-          <div class="c1-alert">
-            <div class="c1-alert-icon">⚠️</div>
-            <p><span>RSVP required:</span> RPAC Steering Group — March 5. Deadline passed, contact your liaison.</p>
-          </div>
-
-          <div class="c1-event-row">
-            <div class="c1-event-date"><span class="day">6</span><span class="mo">Mar</span></div>
-            <div class="c1-event-info">
-              <strong>Public Policy Committee <span class="c1-badge open">Open</span></strong>
-              <span>9:00 AM · Zoom · Government Affairs</span>
-            </div>
-          </div>
-          <div class="c1-event-row">
-            <div class="c1-event-date"><span class="day">8</span><span class="mo">Mar</span></div>
-            <div class="c1-event-info">
-              <strong>Broker Roundtable <span class="c1-badge new">New</span></strong>
-              <span>9:00 AM · Association Office, Rm 202</span>
-            </div>
-          </div>
-          <div class="c1-event-row">
-            <div class="c1-event-date"><span class="day">10</span><span class="mo">Mar</span></div>
-            <div class="c1-event-info">
-              <strong>Legal Update Webinar</strong>
-              <span>1:00 PM · Webinar · 1.5 CE credits</span>
-            </div>
-          </div>
-          <div class="c1-event-row">
-            <div class="c1-event-date"><span class="day">14</span><span class="mo">Mar</span></div>
-            <div class="c1-event-info">
-              <strong>Board of Directors <span class="c1-badge required">RSVP</span></strong>
-              <span>10:00 AM · Agenda posted</span>
-            </div>
-          </div>
-          <div class="c1-event-row">
-            <div class="c1-event-date"><span class="day">15</span><span class="mo">Mar</span></div>
-            <div class="c1-event-info">
-              <strong>Regional Networking Summit</strong>
-              <span>All day · Metro Convention Center</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Activity + CE -->
-        <div style="display:flex;flex-direction:column;gap:16px;">
-          <div class="c1-card">
-            <div class="c1-card-title">Recent activity</div>
-            <div class="c1-activity-item">
-              <div class="c1-activity-dot" style="background:#34d399;"></div>
-              <p><strong>Invoice #4812 paid</strong> — MLS annual subscription $320</p>
-              <time>Feb 28</time>
-            </div>
-            <div class="c1-activity-item">
-              <div class="c1-activity-dot" style="background:#60a5fa;"></div>
-              <p><strong>Registered:</strong> Legal Update Webinar (Mar 10)</p>
-              <time>Feb 25</time>
-            </div>
-            <div class="c1-activity-item">
-              <div class="c1-activity-dot" style="background:#a78bfa;"></div>
-              <p><strong>Course completed:</strong> Agency Disclosure Refresher — <em>2 CE credits earned</em></p>
-              <time>Feb 20</time>
-            </div>
-            <div class="c1-activity-item">
-              <div class="c1-activity-dot" style="background:#fb923c;"></div>
-              <p><strong>Committee application submitted:</strong> Education Advisory Board 2026</p>
-              <time>Feb 18</time>
-            </div>
-          </div>
-
-          <div class="c1-card">
-            <div class="c1-card-title">CE credit progress</div>
-            <div style="margin-bottom:12px;">
-              <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
-                <span style="color:#94a3b8;font-size:0.78rem;">Fair Housing &amp; Ethics 2026</span>
-                <span style="color:#60a5fa;font-size:0.78rem;font-weight:700;">72%</span>
-              </div>
-              <div class="c1-progress-bar"><div class="c1-progress-fill" style="width:72%;"></div></div>
-            </div>
-            <div style="margin-bottom:12px;">
-              <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
-                <span style="color:#94a3b8;font-size:0.78rem;">Agency Law Update</span>
-                <span style="color:#60a5fa;font-size:0.78rem;font-weight:700;">100%</span>
-              </div>
-              <div class="c1-progress-bar"><div class="c1-progress-fill" style="width:100%;background:linear-gradient(90deg,#059669,#34d399);"></div></div>
-            </div>
-            <div>
-              <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
-                <span style="color:#94a3b8;font-size:0.78rem;">Risk Management</span>
-                <span style="color:#94a3b8;font-size:0.78rem;font-weight:700;">Not started</span>
-              </div>
-              <div class="c1-progress-bar"><div class="c1-progress-fill" style="width:0%;"></div></div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="c1-footer-strip">
-        <p>Metro Realtors Association &bull; NRDS# 12345678 &bull; Last login: today 8:32 AM</p>
-        <div class="c1-footer-links">
-          <a href="#">Privacy Policy</a>
-          <a href="#">Support</a>
-          <a href="#">M1 Sync Status</a>
-          <a href="#">TREC Connection</a>
-        </div>
-      </div>
+<!-- ════════════════════════════════════
+     MAIN WRAPPER
+════════════════════════════════════ -->
+<div class="main-wrap">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="page-title" id="topbar-title">Dashboard</span>
+      <span class="page-sub" id="topbar-sub">Welcome back, Jordan</span>
     </div>
-  </div><!-- /c1 -->
-
-
-  <!-- ══════════════════════════════════════════════
-       CONCEPT 2 — MY PORTAL
-       Left sidebar member card, large icon tile launch pad
-       Based on Virginia REALTORS / HCAR portal structure
-  ══════════════════════════════════════════════ -->
-  <div class="concept" id="c2">
-    <div class="c2">
-      <!-- Topbar -->
-      <header class="c2-topbar">
-        <div class="c2-brand">
-          <div class="c2-logo">RA</div>
-          <div>
-            <strong>Realtors Association</strong>
-            <span>Member Portal — My Account</span>
-          </div>
-        </div>
-        <div class="c2-topbar-right">
-          <div class="c2-search">
-            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            Search members, events, courses…
-          </div>
-          <div class="c2-icon-btn">
-            🔔
-            <div class="c2-dot"></div>
-          </div>
-          <div class="c2-avatar-sm">JL</div>
-        </div>
-      </header>
-
-      <div class="c2-body">
-        <!-- Sidebar -->
-        <aside class="c2-sidebar">
-          <div class="c2-member-card">
-            <div class="c2-member-avatar">JL</div>
-            <h3>Jordan Lee</h3>
-            <div class="c2-nrds">NRDS# 12345678</div>
-            <div class="c2-member-pills">
-              <span class="c2-pill">Residential Broker</span>
-              <span class="c2-pill">District 4</span>
-            </div>
-            <div class="c2-member-status">
-              <div class="row"><span class="label">Membership</span><span class="val ok">Active</span></div>
-              <div class="row"><span class="label">Balance due</span><span class="val warn">$79</span></div>
-              <div class="row"><span class="label">Days remaining</span><span class="val">122 days</span></div>
-              <div class="row"><span class="label">CE credits</span><span class="val">10 / 14</span></div>
-            </div>
-          </div>
-
-          <div class="c2-nav-section">
-            <div class="c2-nav-section-label">My Membership</div>
-            <a href="#" class="c2-nav-item active"><span class="c2-nav-icon">🏠</span> Dashboard</a>
-            <a href="#" class="c2-nav-item"><span class="c2-nav-icon">👤</span> My Profile</a>
-            <a href="#" class="c2-nav-item"><span class="c2-nav-icon">💳</span> Billing &amp; Invoices <span class="c2-nav-badge warn">$79</span></a>
-            <a href="#" class="c2-nav-item"><span class="c2-nav-icon">📩</span> Subscriptions</a>
-          </div>
-
-          <div class="c2-nav-section">
-            <div class="c2-nav-section-label">Education</div>
-            <a href="#" class="c2-nav-item"><span class="c2-nav-icon">📚</span> Course Catalog</a>
-            <a href="#" class="c2-nav-item"><span class="c2-nav-icon">🎓</span> My Classes <span class="c2-nav-badge">2</span></a>
-            <a href="#" class="c2-nav-item"><span class="c2-nav-icon">📜</span> My Certificates</a>
-          </div>
-
-          <div class="c2-nav-section">
-            <div class="c2-nav-section-label">Engagement</div>
-            <a href="#" class="c2-nav-item"><span class="c2-nav-icon">📅</span> Event Calendar</a>
-            <a href="#" class="c2-nav-item"><span class="c2-nav-icon">🗓️</span> My Meetings <span class="c2-nav-badge warn">1</span></a>
-            <a href="#" class="c2-nav-item"><span class="c2-nav-icon">🏛️</span> Committees</a>
-            <a href="#" class="c2-nav-item"><span class="c2-nav-icon">🗳️</span> Elections</a>
-            <a href="#" class="c2-nav-item"><span class="c2-nav-icon">💚</span> Contribute (RPAC)</a>
-            <a href="#" class="c2-nav-item"><span class="c2-nav-icon">🔍</span> Member Directory</a>
-            <a href="#" class="c2-nav-item"><span class="c2-nav-icon">🛍️</span> Online Store</a>
-          </div>
-        </aside>
-
-        <!-- Main content -->
-        <main class="c2-main">
-
-          <!-- Welcome + status alert -->
-          <div style="background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
-            <div>
-              <div style="color:#9ca3af;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;">Welcome back</div>
-              <h2 style="font-size:1.25rem;font-weight:700;color:#111827;margin:0;">Jordan Lee</h2>
-              <p style="color:#6b7280;font-size:0.84rem;margin-top:4px;">Monday Mar 2, 2026 &bull; Last login: today 8:32 AM</p>
-            </div>
-            <div style="background:#fef9c3;border:1px solid #fef08a;border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;">
-              <span style="font-size:18px;">⚠️</span>
-              <div>
-                <p style="font-size:0.82rem;font-weight:700;color:#854d0e;">Invoice due in 28 days</p>
-                <p style="font-size:0.74rem;color:#92400e;margin-top:2px;">MLS Analytics Add-on — $79</p>
-              </div>
-              <button style="background:#854d0e;color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:0.76rem;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;margin-left:8px;">Pay now</button>
-            </div>
-          </div>
-
-          <!-- Large icon launch tiles -->
-          <div>
-            <div class="c2-section-title">Quick launch — your most-used portal areas</div>
-            <div class="c2-tile-grid">
-              <a href="#" class="c2-tile">
-                <div class="c2-tile-icon" style="background:#ecfdf5;">📚</div>
-                <div>
-                  <strong>My Classes</strong>
-                  <small>2 courses in progress</small>
-                </div>
-                <span class="c2-count">2 active</span>
-              </a>
-              <a href="#" class="c2-tile">
-                <div class="c2-tile-icon" style="background:#eff6ff;">📅</div>
-                <div>
-                  <strong>Event Calendar</strong>
-                  <small>8 events in March</small>
-                </div>
-                <span class="c2-count">3 open</span>
-              </a>
-              <a href="#" class="c2-tile">
-                <div class="c2-tile-icon" style="background:#fef9c3;">💳</div>
-                <div>
-                  <strong>Billing</strong>
-                  <small>1 invoice outstanding</small>
-                </div>
-                <span class="c2-count warn">$79 due</span>
-              </a>
-              <a href="#" class="c2-tile">
-                <div class="c2-tile-icon" style="background:#f5f3ff;">🏛️</div>
-                <div>
-                  <strong>My Committees</strong>
-                  <small>2 active, 1 pending RSVP</small>
-                </div>
-                <span class="c2-count warn">Action needed</span>
-              </a>
-              <a href="#" class="c2-tile">
-                <div class="c2-tile-icon" style="background:#fff7ed;">📜</div>
-                <div>
-                  <strong>My Certificates</strong>
-                  <small>Download CE records</small>
-                </div>
-                <span class="c2-count" style="background:#6b7280;">3 certs</span>
-              </a>
-              <a href="#" class="c2-tile">
-                <div class="c2-tile-icon" style="background:#f0fdf4;">🗳️</div>
-                <div>
-                  <strong>Elections</strong>
-                  <small>Voting open through Mar 21</small>
-                </div>
-                <span class="c2-count warn">Vote now</span>
-              </a>
-              <a href="#" class="c2-tile">
-                <div class="c2-tile-icon" style="background:#fdf2f8;">🔍</div>
-                <div>
-                  <strong>Member Directory</strong>
-                  <small>4,200+ members</small>
-                </div>
-                <span class="c2-count" style="background:#6b7280;">Search</span>
-              </a>
-              <a href="#" class="c2-tile">
-                <div class="c2-tile-icon" style="background:#fffbeb;">🛍️</div>
-                <div>
-                  <strong>Online Store</strong>
-                  <small>Forms, toolkits &amp; more</small>
-                </div>
-                <span class="c2-count amber">New items</span>
-              </a>
-            </div>
-          </div>
-
-          <!-- Two col: CE progress + Meetings -->
-          <div class="c2-two-col">
-            <div class="c2-panel">
-              <h4>📋 My Education Track</h4>
-              <div class="c2-ce-track">
-                <div class="ce-meta"><span>Fair Housing &amp; Ethics 2026</span><strong>72%</strong></div>
-                <div class="c2-bar"><div class="c2-bar-fill" style="width:72%;"></div></div>
-                <p style="color:#9ca3af;font-size:0.72rem;margin-top:4px;">Deadline: Apr 12 · 2 modules remaining</p>
-              </div>
-              <div class="c2-ce-track">
-                <div class="ce-meta"><span>Agency Law Update</span><strong style="color:#9ca3af;">Complete</strong></div>
-                <div class="c2-bar"><div class="c2-bar-fill" style="width:100%;background:#d1d5db;"></div></div>
-                <p style="color:#9ca3af;font-size:0.72rem;margin-top:4px;">Certificate available</p>
-              </div>
-              <div class="c2-ce-track">
-                <div class="ce-meta"><span>Risk Management</span><strong style="color:#9ca3af;">Not started</strong></div>
-                <div class="c2-bar"><div class="c2-bar-fill" style="width:0%;"></div></div>
-                <p style="color:#9ca3af;font-size:0.72rem;margin-top:4px;">Recommended before Jun 30</p>
-              </div>
-              <button style="background:#ecfdf5;color:#065f46;border:1.5px solid #d1fae5;border-radius:9px;padding:8px 14px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;margin-top:8px;width:100%;">Browse full course catalog →</button>
-            </div>
-
-            <div class="c2-panel">
-              <h4>🗓️ My Meetings</h4>
-              <div class="c2-meeting-row">
-                <div class="c2-meeting-dot" style="background:#dc2626;"></div>
-                <div class="info"><strong>RPAC Steering Group</strong><span>Mar 5 · RSVP deadline passed</span></div>
-                <button class="c2-rsvp pending">Overdue</button>
-              </div>
-              <div class="c2-meeting-row">
-                <div class="c2-meeting-dot" style="background:#059669;"></div>
-                <div class="info"><strong>Public Policy Committee</strong><span>Mar 6 · 9:00 AM · Zoom</span></div>
-                <button class="c2-rsvp">RSVP</button>
-              </div>
-              <div class="c2-meeting-row">
-                <div class="c2-meeting-dot" style="background:#3b82f6;"></div>
-                <div class="info"><strong>Board of Directors</strong><span>Mar 14 · Agenda posted</span></div>
-                <button class="c2-rsvp">RSVP</button>
-              </div>
-              <div class="c2-meeting-row">
-                <div class="c2-meeting-dot" style="background:#8b5cf6;"></div>
-                <div class="info"><strong>Education Advisory</strong><span>Mar 11 · You're vice chair</span></div>
-                <button class="c2-rsvp">Confirm</button>
-              </div>
-              <div class="c2-meeting-row">
-                <div class="c2-meeting-dot" style="background:#6b7280;"></div>
-                <div class="info"><strong>Community Outreach</strong><span>Mar 22 · Optional</span></div>
-                <button class="c2-rsvp pending">Pending</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Three col: actions needed, directory spotlight, store -->
-          <div class="c2-three-col">
-            <div class="c2-panel">
-              <h4>✅ Actions required</h4>
-              <div class="c2-action-item">
-                <div class="c2-action-icon-wrap" style="background:#fef9c3;">⚠️</div>
-                <div class="meta"><p>Pay MLS add-on invoice</p><span>Invoice #5021</span></div>
-                <span class="due urgent">Mar 30</span>
-              </div>
-              <div class="c2-action-item">
-                <div class="c2-action-icon-wrap" style="background:#fef2f2;">🗳️</div>
-                <div class="meta"><p>Vote in Treasurer election</p><span>2026 Board elections</span></div>
-                <span class="due urgent">Mar 21</span>
-              </div>
-              <div class="c2-action-item">
-                <div class="c2-action-icon-wrap" style="background:#eff6ff;">📋</div>
-                <div class="meta"><p>Complete Fair Housing module 5</p><span>2 of 4 remaining</span></div>
-                <span class="due ok">Apr 12</span>
-              </div>
-              <div class="c2-action-item">
-                <div class="c2-action-icon-wrap" style="background:#ecfdf5;">📝</div>
-                <div class="meta"><p>Submit committee interest form</p><span>2026 applications open</span></div>
-                <span class="due ok">Jun 30</span>
-              </div>
-            </div>
-
-            <div class="c2-panel">
-              <h4>🔍 Directory spotlight</h4>
-              <div style="color:#9ca3af;font-size:0.78rem;margin-bottom:10px;">Members in your district this week</div>
-              <div class="c2-action-item">
-                <div class="c2-action-icon-wrap" style="background:#f0fdf4;font-size:16px;">👤</div>
-                <div class="meta"><p>Avery Morgan</p><span>Residential broker, Dist. 4</span></div>
-                <a href="#" style="font-size:0.72rem;color:#065f46;font-weight:700;text-decoration:none;">View</a>
-              </div>
-              <div class="c2-action-item">
-                <div class="c2-action-icon-wrap" style="background:#eff6ff;font-size:16px;">👤</div>
-                <div class="meta"><p>Morgan Patel</p><span>Appraisal specialist</span></div>
-                <a href="#" style="font-size:0.72rem;color:#065f46;font-weight:700;text-decoration:none;">View</a>
-              </div>
-              <div class="c2-action-item">
-                <div class="c2-action-icon-wrap" style="background:#fdf4ff;font-size:16px;">👤</div>
-                <div class="meta"><p>Sage Kim</p><span>Property management</span></div>
-                <a href="#" style="font-size:0.72rem;color:#065f46;font-weight:700;text-decoration:none;">View</a>
-              </div>
-              <button style="background:#f3f4f6;color:#374151;border:1px solid #e5e7eb;border-radius:9px;padding:8px 12px;font-size:0.76rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;margin-top:6px;width:100%;">Search all members →</button>
-            </div>
-
-            <div class="c2-panel">
-              <h4>🛍️ Store — New items</h4>
-              <div class="c2-action-item">
-                <div class="c2-action-icon-wrap" style="background:#fef9c3;font-size:16px;">📄</div>
-                <div class="meta"><p>2026 Contract Forms Bundle</p><span>Updated Mar 1, 2026</span></div>
-                <span class="due ok">$49</span>
-              </div>
-              <div class="c2-action-item">
-                <div class="c2-action-icon-wrap" style="background:#ecfdf5;font-size:16px;">🔧</div>
-                <div class="meta"><p>Broker Compliance Toolkit</p><span>Digital download</span></div>
-                <span class="due ok">$29</span>
-              </div>
-              <div class="c2-action-item">
-                <div class="c2-action-icon-wrap" style="background:#eff6ff;font-size:16px;">📱</div>
-                <div class="meta"><p>Social Media Brand Assets</p><span>Canva templates</span></div>
-                <span class="due ok">Free</span>
-              </div>
-              <div class="c2-action-item">
-                <div class="c2-action-icon-wrap" style="background:#fdf4ff;font-size:16px;">📊</div>
-                <div class="meta"><p>Market Report Template</p><span>Excel + PDF</span></div>
-                <span class="due ok">$15</span>
-              </div>
-            </div>
-          </div>
-
-        </main>
+    <div class="topbar-right">
+      <div>
+        <div class="topbar-name">Jordan Lee</div>
+        <div class="topbar-sub">Residential Broker &bull; Member since 2018</div>
       </div>
+      <div class="topbar-avatar">JL</div>
     </div>
-  </div><!-- /c2 -->
+  </div>
 
+  <div class="main-content">
 
-  <!-- ══════════════════════════════════════════════
-       CONCEPT 3 — MEMBER BRIEFING
-       Editorial, three content pillar swimlanes
-       Inspired by NAR's benefit structure:
-       INFORM / LEARN / ACT
-  ══════════════════════════════════════════════ -->
-  <div class="concept" id="c3">
-    <div class="c3">
-      <!-- Topbar -->
-      <header class="c3-topbar">
-        <div class="c3-brand">
-          <div class="c3-logo">RA</div>
-          <div>
-            <strong>Realtors Association</strong>
-            <span>Member Home</span>
-          </div>
-        </div>
+    <!-- ════════════════════════════════════
+         PAGE: DASHBOARD
+    ════════════════════════════════════ -->
+    <section class="page active" id="page-dashboard">
+      <div class="page-header">
+        <h2>Good morning, Jordan &#128075;</h2>
+        <p>Monday, March 2, 2026 &bull; You have <strong>4 action items</strong> requiring attention.</p>
+      </div>
 
-        <nav class="c3-nav">
-          <a href="#" class="active">Home</a>
-          <a href="#">Calendar</a>
-          <a href="#">Courses</a>
-          <a href="#">Meetings</a>
-          <a href="#">Directory</a>
-          <a href="#">Contribute</a>
-          <a href="#">Committees</a>
-          <a href="#">Billing</a>
-          <a href="#">Elections</a>
-          <a href="#">Store</a>
-        </nav>
-
-        <div class="c3-user">
-          <div class="c3-avatar">JL</div>
-          <span class="c3-username">Jordan Lee</span>
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card success">
+          <div class="stat-label">Membership</div>
+          <div class="stat-value success">Active</div>
+          <div class="stat-sub">REALTOR&reg; &bull; Dist. 4 &bull; Since 2018</div>
         </div>
-      </header>
-
-      <!-- Membership status strip -->
-      <div class="c3-status-strip">
-        <div class="c3-status-item">
-          <div class="label">Membership</div>
-          <div class="val ok">Active — REALTOR®</div>
+        <div class="stat-card danger">
+          <div class="stat-label">Balance Due</div>
+          <div class="stat-value danger">$79</div>
+          <div class="stat-sub">Invoice #5021 &bull; Due Mar 30</div>
         </div>
-        <div class="c3-status-divider"></div>
-        <div class="c3-status-item">
-          <div class="label">Balance</div>
-          <div class="val warn">$79 due Mar 30</div>
+        <div class="stat-card warn">
+          <div class="stat-label">CE Credits</div>
+          <div class="stat-value warn">10 / 14</div>
+          <div class="stat-sub">4 credits remaining &bull; Deadline Jun 30</div>
         </div>
-        <div class="c3-status-divider"></div>
-        <div class="c3-status-item">
-          <div class="label">CE Credits</div>
-          <div class="val">10 / 14 completed</div>
-        </div>
-        <div class="c3-status-divider"></div>
-        <div class="c3-status-item">
-          <div class="label">Committees</div>
-          <div class="val">2 active · 1 pending RSVP</div>
-        </div>
-        <div class="c3-status-divider"></div>
-        <div class="c3-status-item">
-          <div class="label">NRDS#</div>
-          <div class="val">12345678</div>
-        </div>
-        <div class="c3-status-cta">
-          <button class="c3-status-btn solid">Pay $79</button>
-          <button class="c3-status-btn">Good standing letter</button>
+        <div class="stat-card">
+          <div class="stat-label">Open Actions</div>
+          <div class="stat-value">4</div>
+          <div class="stat-sub">RSVP, vote, invoice, CE module</div>
         </div>
       </div>
 
-      <!-- Hero + urgent sidebar -->
-      <div class="c3-hero">
+      <!-- Quick Launch -->
+      <div class="card-title" style="margin-bottom:12px;">Quick Launch</div>
+      <div class="tile-grid section-gap">
+        <div class="tile" onclick="navigate('calendar')">
+          <div class="tile-icon">&#128197;</div>
+          <div class="tile-label">Calendar</div>
+          <div class="tile-sub">8 events in March</div>
+          <span class="tile-badge info">3 open</span>
+        </div>
+        <div class="tile" onclick="navigate('courses')">
+          <div class="tile-icon">&#127891;</div>
+          <div class="tile-label">My Courses</div>
+          <div class="tile-sub">2 in progress</div>
+          <span class="tile-badge info">2 active</span>
+        </div>
+        <div class="tile" onclick="navigate('meetings')">
+          <div class="tile-icon">&#128203;</div>
+          <div class="tile-label">Meetings</div>
+          <div class="tile-sub">1 RSVP overdue</div>
+          <span class="tile-badge action">Overdue</span>
+        </div>
+        <div class="tile" onclick="navigate('directory')">
+          <div class="tile-icon">&#128101;</div>
+          <div class="tile-label">Directory</div>
+          <div class="tile-sub">4,200+ members</div>
+          <span class="tile-badge neutral">Search</span>
+        </div>
+        <div class="tile" onclick="navigate('contribute')">
+          <div class="tile-icon">&#128156;</div>
+          <div class="tile-label">Contribute</div>
+          <div class="tile-sub">RPAC &bull; 50% of goal</div>
+          <span class="tile-badge warn">50%</span>
+        </div>
+        <div class="tile" onclick="navigate('committees')">
+          <div class="tile-icon">&#127963;</div>
+          <div class="tile-label">Committees</div>
+          <div class="tile-sub">2 active memberships</div>
+          <span class="tile-badge ok">Active</span>
+        </div>
+        <div class="tile" onclick="navigate('billing')">
+          <div class="tile-icon">&#128179;</div>
+          <div class="tile-label">Billing</div>
+          <div class="tile-sub">1 invoice outstanding</div>
+          <span class="tile-badge action">$79 due</span>
+        </div>
+        <div class="tile" onclick="navigate('elections')">
+          <div class="tile-icon">&#128499;</div>
+          <div class="tile-label">Elections</div>
+          <div class="tile-sub">Voting open through Mar 21</div>
+          <span class="tile-badge action">Vote now</span>
+        </div>
+        <div class="tile" onclick="navigate('store')">
+          <div class="tile-icon">&#128722;</div>
+          <div class="tile-label">Online Store</div>
+          <div class="tile-sub">Forms, toolkits &amp; more</div>
+          <span class="tile-badge neutral">Browse</span>
+        </div>
+        <div class="tile" onclick="navigate('resources')">
+          <div class="tile-icon">&#128279;</div>
+          <div class="tile-label">Resources &amp; SSO</div>
+          <div class="tile-sub">MLS, zipForm, DotLoop...</div>
+          <span class="tile-badge ok">6 links</span>
+        </div>
+      </div>
+
+      <div class="grid-2 section-gap">
+        <!-- Recent Activity -->
+        <div class="card">
+          <div class="card-title">Recent Activity <a href="#" onclick="return false;">View all</a></div>
+          <div class="activity-item">
+            <div class="activity-dot" style="background:var(--success)"></div>
+            <div class="activity-body">
+              <p><strong>Invoice #4812 paid</strong> &mdash; MLS Annual Subscription $320</p>
+              <span>Billing &bull; Auto-pay ACH 0402</span>
+            </div>
+            <span class="activity-time">Feb 28</span>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot" style="background:var(--primary)"></div>
+            <div class="activity-body">
+              <p><strong>Registered:</strong> Legal Update Webinar &mdash; Mar 10, 1:00 PM</p>
+              <span>Calendar &bull; 1.5 CE credits</span>
+            </div>
+            <span class="activity-time">Feb 25</span>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot" style="background:#8b5cf6"></div>
+            <div class="activity-body">
+              <p><strong>Course completed:</strong> Agency Disclosure Refresher &mdash; 2 CE credits earned</p>
+              <span>Education &bull; Certificate available</span>
+            </div>
+            <span class="activity-time">Feb 20</span>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot" style="background:var(--warning)"></div>
+            <div class="activity-body">
+              <p><strong>Committee application submitted</strong> &mdash; Education Advisory Board 2026</p>
+              <span>Committees &bull; Application under review</span>
+            </div>
+            <span class="activity-time">Feb 18</span>
+          </div>
+        </div>
+
+        <!-- CE Progress -->
+        <div class="card">
+          <div class="card-title">CE Credit Progress <a onclick="navigate('courses');return false;" href="#">My Courses</a></div>
+          <div class="progress-wrap">
+            <div class="progress-meta">
+              <span>Fair Housing &amp; Ethics 2026</span>
+              <strong>72%</strong>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:72%"></div></div>
+            <div class="progress-sub">Deadline: Apr 12 &bull; 2 CE credits remaining</div>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-meta">
+              <span>Agency Law Update</span>
+              <strong style="color:var(--success)">Complete &#10003;</strong>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--success)"></div></div>
+            <div class="progress-sub">Certificate available for download</div>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-meta">
+              <span>Risk Management Essentials</span>
+              <strong>15%</strong>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:15%"></div></div>
+            <div class="progress-sub">Deadline: Jun 30 &bull; 3 CE credits remaining</div>
+          </div>
+          <div class="mt-12">
+            <button class="btn btn-primary btn-sm" onclick="navigate('courses')">Continue Learning &rarr;</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resources Quick Access -->
+      <div class="card section-gap">
+        <div class="card-title">Integrated Services &amp; SSO <a onclick="navigate('resources');return false;" href="#">All resources</a></div>
+        <div class="tile-grid" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+          <div class="tile" onclick="navigate('resources')">
+            <div class="tile-icon">&#127968;</div>
+            <div class="tile-label">Matrix MLS</div>
+            <div class="tile-sub">Listings &amp; market data</div>
+          </div>
+          <div class="tile" onclick="navigate('resources')">
+            <div class="tile-icon">&#128196;</div>
+            <div class="tile-label">zipForm Plus</div>
+            <div class="tile-sub">Forms &amp; contracts</div>
+          </div>
+          <div class="tile" onclick="navigate('resources')">
+            <div class="tile-icon">&#128257;</div>
+            <div class="tile-label">DotLoop</div>
+            <div class="tile-sub">Transaction mgmt</div>
+          </div>
+          <div class="tile" onclick="navigate('resources')">
+            <div class="tile-icon">&#128197;</div>
+            <div class="tile-label">ShowingTime</div>
+            <div class="tile-sub">Showing scheduler</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Board Content / Custom Widgets -->
+      <div class="card-title" style="margin-bottom:12px;">Board Content <span class="text-xs text-muted" style="font-weight:400;text-transform:none;letter-spacing:0;">&mdash; Boards can add custom HTML, JS, or embed widgets below</span></div>
+      <div class="widget-grid section-gap">
+        <div class="widget-card">
+          <div class="card-title" style="margin-bottom:8px;">Market Statistics</div>
+          <div style="font-size:0.76rem;color:var(--muted);margin-bottom:6px;">Active listings this year</div>
+          <div class="mini-chart">
+            <div class="bar" style="height:30%"></div>
+            <div class="bar" style="height:55%"></div>
+            <div class="bar" style="height:45%"></div>
+            <div class="bar hi" style="height:80%"></div>
+            <div class="bar hi" style="height:70%"></div>
+          </div>
+          <div class="chart-labels">
+            <span>Nov</span><span>Dec</span><span>Jan</span><span>Feb</span><span>Mar</span>
+          </div>
+          <div style="font-size:0.7rem;color:var(--muted);margin-top:6px;font-style:italic;">Embed your own market data widget here</div>
+        </div>
+
+        <div class="widget-card">
+          <div class="card-title" style="margin-bottom:10px;">Board News</div>
+          <div class="activity-item" style="padding:7px 0">
+            <div class="activity-body">
+              <p><strong>2026 Legislative Priorities Released</strong></p>
+              <span>Feb 28 &bull; Government Affairs</span>
+            </div>
+          </div>
+          <div class="activity-item" style="padding:7px 0">
+            <div class="activity-body">
+              <p><strong>New forms library update live</strong></p>
+              <span>Feb 22 &bull; Education</span>
+            </div>
+          </div>
+          <div class="activity-item" style="padding:7px 0">
+            <div class="activity-body">
+              <p><strong>Member appreciation event &mdash; Apr 4</strong></p>
+              <span>Feb 15 &bull; Events</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="widget-add-card" onclick="alert('In production: opens board admin widget editor')">
+          <div class="widget-add-icon">&#43;</div>
+          <div class="widget-add-label">Add Custom Widget</div>
+          <div class="widget-add-sub">Boards can embed custom HTML,<br>JavaScript, or iframe content here.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         PAGE: CALENDAR OF EVENTS
+    ════════════════════════════════════ -->
+    <section class="page" id="page-calendar">
+      <div class="page-header flex-between">
         <div>
-          <div class="c3-today-label">Monday, March 2, 2026</div>
-          <h2>Good morning, Jordan.<br>Here's what matters today.</h2>
-          <p class="c3-hero-sub">
-            Zoning reform testimony deadline closes in 48 hours. Your next committee meeting
-            RSVP is overdue. Two CE modules are ready to continue. And voting for the 2026
-            Board is now open.
+          <h2>Calendar of Events</h2>
+          <p>March 2026 &bull; 8 upcoming events</p>
+        </div>
+        <button class="btn btn-primary btn-sm">&#43; Browse all events</button>
+      </div>
+
+      <div class="filter-tabs">
+        <button class="filter-btn active" onclick="filterEvents(this,'all')">All Events</button>
+        <button class="filter-btn" onclick="filterEvents(this,'registered')">Registered</button>
+        <button class="filter-btn" onclick="filterEvents(this,'meeting')">Meetings</button>
+        <button class="filter-btn" onclick="filterEvents(this,'education')">Education</button>
+      </div>
+
+      <div id="events-list">
+        <div class="event-card border-blue" data-type="meeting">
+          <div class="event-date"><span class="day">6</span><span class="mo">Mar</span></div>
+          <div class="event-info">
+            <strong>Public Policy Committee</strong>
+            <div class="meta">Meeting &bull; Zoom &bull; 9:00 AM &bull; Govt Affairs Committee</div>
+          </div>
+          <div class="event-actions">
+            <span class="badge badge-blue">Meeting</span>
+            <button class="btn btn-secondary btn-sm">RSVP</button>
+          </div>
+        </div>
+
+        <div class="event-card border-gray" data-type="event">
+          <div class="event-date"><span class="day">8</span><span class="mo">Mar</span></div>
+          <div class="event-info">
+            <strong>Broker Roundtable</strong>
+            <div class="meta">Event &bull; Association Office, Rm 202 &bull; 9:00 AM</div>
+          </div>
+          <div class="event-actions">
+            <span class="badge badge-gray">Event</span>
+            <button class="btn btn-secondary btn-sm">Register</button>
+          </div>
+        </div>
+
+        <div class="event-card border-green" data-type="education registered">
+          <div class="event-date"><span class="day">10</span><span class="mo">Mar</span></div>
+          <div class="event-info">
+            <strong>Legal Update Webinar</strong>
+            <div class="meta">Education &bull; Webinar &bull; 1:00 PM &bull; 1.5 CE credits</div>
+          </div>
+          <div class="event-actions">
+            <span class="badge badge-green">&#10003; Registered</span>
+            <button class="btn btn-success btn-sm">Join Webinar</button>
+          </div>
+        </div>
+
+        <div class="event-card border-gray" data-type="event">
+          <div class="event-date"><span class="day">12</span><span class="mo">Mar</span></div>
+          <div class="event-info">
+            <strong>Commercial Forum</strong>
+            <div class="meta">Event &bull; Association Office &bull; 11:30 AM</div>
+          </div>
+          <div class="event-actions">
+            <span class="badge badge-gray">Event</span>
+            <button class="btn btn-secondary btn-sm">Register</button>
+          </div>
+        </div>
+
+        <div class="event-card border-amber" data-type="meeting">
+          <div class="event-date"><span class="day">14</span><span class="mo">Mar</span></div>
+          <div class="event-info">
+            <strong>Board of Directors</strong>
+            <div class="meta">Meeting &bull; Association Office &bull; 10:00 AM &bull; Agenda posted</div>
+          </div>
+          <div class="event-actions">
+            <span class="badge badge-amber">RSVP Required</span>
+            <button class="btn btn-primary btn-sm">RSVP Now</button>
+          </div>
+        </div>
+
+        <div class="event-card border-gray" data-type="event">
+          <div class="event-date"><span class="day">15</span><span class="mo">Mar</span></div>
+          <div class="event-info">
+            <strong>Regional Networking Summit</strong>
+            <div class="meta">Event &bull; Metro Convention Center &bull; All day</div>
+          </div>
+          <div class="event-actions">
+            <span class="badge badge-gray">Event</span>
+            <button class="btn btn-secondary btn-sm">Register</button>
+          </div>
+        </div>
+
+        <div class="event-card border-blue" data-type="meeting">
+          <div class="event-date"><span class="day">18</span><span class="mo">Mar</span></div>
+          <div class="event-info">
+            <strong>RPAC Steering Group</strong>
+            <div class="meta">Meeting &bull; Zoom &bull; 2:00 PM &bull; Advocacy Committee</div>
+          </div>
+          <div class="event-actions">
+            <span class="badge badge-red">RSVP Overdue</span>
+            <button class="btn btn-danger btn-sm">Contact Liaison</button>
+          </div>
+        </div>
+
+        <div class="event-card border-gray" data-type="event">
+          <div class="event-date"><span class="day">19</span><span class="mo">Mar</span></div>
+          <div class="event-info">
+            <strong>Young Professionals Mixer</strong>
+            <div class="meta">Event &bull; The Rooftop at Main &bull; 5:00 PM</div>
+          </div>
+          <div class="event-actions">
+            <span class="badge badge-gray">Event</span>
+            <button class="btn btn-secondary btn-sm">Register</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         PAGE: COURSE LIST
+    ════════════════════════════════════ -->
+    <section class="page" id="page-courses">
+      <div class="page-header flex-between">
+        <div>
+          <h2>Course List</h2>
+          <p>Continuing education, certifications, and training</p>
+        </div>
+        <span class="badge badge-blue" style="font-size:0.82rem;padding:6px 12px;">10 / 14 CE credits earned</span>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab(this,'courses','in-progress')">In Progress</button>
+        <button class="tab-btn" onclick="switchTab(this,'courses','available')">Available Courses</button>
+        <button class="tab-btn" onclick="switchTab(this,'courses','completed')">Completed</button>
+        <button class="tab-btn" onclick="switchTab(this,'courses','certificates')">My Certificates</button>
+      </div>
+
+      <div class="tab-panel active" data-group="courses" data-tab="in-progress">
+        <div class="course-card">
+          <div class="course-head">
+            <div>
+              <div class="course-title">Fair Housing &amp; Ethics 2026</div>
+              <div class="course-meta">2 CE credits &bull; Deadline: Apr 12, 2026 &bull; Module 5 of 7</div>
+            </div>
+            <span class="badge badge-amber">72% Complete</span>
+          </div>
+          <div class="progress-bar mb-12"><div class="progress-fill" style="width:72%"></div></div>
+          <div class="flex-row">
+            <button class="btn btn-primary btn-sm">Continue &rarr;</button>
+            <button class="btn btn-secondary btn-sm">Course Details</button>
+            <span class="text-xs text-muted">Last activity: Feb 24</span>
+          </div>
+        </div>
+
+        <div class="course-card">
+          <div class="course-head">
+            <div>
+              <div class="course-title">Risk Management Essentials</div>
+              <div class="course-meta">3 CE credits &bull; Deadline: Jun 30, 2026 &bull; Module 1 of 6</div>
+            </div>
+            <span class="badge badge-amber">15% Complete</span>
+          </div>
+          <div class="progress-bar mb-12"><div class="progress-fill" style="width:15%"></div></div>
+          <div class="flex-row">
+            <button class="btn btn-primary btn-sm">Continue &rarr;</button>
+            <button class="btn btn-secondary btn-sm">Course Details</button>
+            <span class="text-xs text-muted">Last activity: Feb 10</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" data-group="courses" data-tab="available">
+        <div class="course-card">
+          <div class="course-head">
+            <div>
+              <div class="course-title">Agency Law Update 2026</div>
+              <div class="course-meta">2 CE credits &bull; Online self-paced &bull; $49</div>
+            </div>
+            <button class="btn btn-primary btn-sm">Enroll</button>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-head">
+            <div>
+              <div class="course-title">Commercial Real Estate Fundamentals</div>
+              <div class="course-meta">4 CE credits &bull; 3-day in-person &bull; $89</div>
+            </div>
+            <button class="btn btn-primary btn-sm">Enroll</button>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-head">
+            <div>
+              <div class="course-title">Social Media Marketing for Agents</div>
+              <div class="course-meta">1 CE credit &bull; Webinar &bull; Free (member benefit)</div>
+            </div>
+            <button class="btn btn-success btn-sm">Enroll Free</button>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-head">
+            <div>
+              <div class="course-title">Legal Update 2026</div>
+              <div class="course-meta">2 CE credits &bull; Webinar &bull; Included with membership</div>
+            </div>
+            <button class="btn btn-success btn-sm">Enroll Free</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" data-group="courses" data-tab="completed">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Course</th><th>Completed</th><th>CE Credits</th><th>Certificate</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>Agency Disclosure Refresher</strong></td>
+                <td>Feb 20, 2026</td>
+                <td><span class="badge badge-green">2 credits</span></td>
+                <td><button class="btn btn-secondary btn-xs">Download</button></td>
+              </tr>
+              <tr>
+                <td><strong>Code of Ethics 2025</strong></td>
+                <td>Jan 15, 2026</td>
+                <td><span class="badge badge-green">3 credits</span></td>
+                <td><button class="btn btn-secondary btn-xs">Download</button></td>
+              </tr>
+              <tr>
+                <td><strong>Fair Housing Fundamentals</strong></td>
+                <td>Aug 3, 2025</td>
+                <td><span class="badge badge-green">3 credits</span></td>
+                <td><button class="btn btn-secondary btn-xs">Download</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tab-panel" data-group="courses" data-tab="certificates">
+        <div class="grid-2">
+          <div class="card flex-row">
+            <div style="font-size:32px;">&#127891;</div>
+            <div style="flex:1">
+              <div class="font-700">Agency Disclosure Refresher</div>
+              <div class="text-xs text-muted mt-4">Earned Feb 20, 2026 &bull; 2 CE credits</div>
+            </div>
+            <button class="btn btn-secondary btn-sm">Download PDF</button>
+          </div>
+          <div class="card flex-row">
+            <div style="font-size:32px;">&#127891;</div>
+            <div style="flex:1">
+              <div class="font-700">Code of Ethics 2025</div>
+              <div class="text-xs text-muted mt-4">Earned Jan 15, 2026 &bull; 3 CE credits</div>
+            </div>
+            <button class="btn btn-secondary btn-sm">Download PDF</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         PAGE: MEETING LIST
+    ════════════════════════════════════ -->
+    <section class="page" id="page-meetings">
+      <div class="page-header">
+        <h2>Meeting List</h2>
+        <p>Upcoming committee and governance meetings</p>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab(this,'meetings','upcoming')">Upcoming</button>
+        <button class="tab-btn" onclick="switchTab(this,'meetings','my-meetings')">My Meetings</button>
+        <button class="tab-btn" onclick="switchTab(this,'meetings','all')">All Meetings</button>
+      </div>
+
+      <div class="tab-panel active" data-group="meetings" data-tab="upcoming">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Date</th><th>Meeting</th><th>Committee</th><th>My Role</th><th>Status</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Mar 5</td>
+                <td><strong>RPAC Steering Group</strong><br><span class="text-xs text-muted">Zoom &bull; 2:00 PM</span></td>
+                <td>Advocacy</td>
+                <td>Member</td>
+                <td><span class="badge badge-red">RSVP Overdue</span></td>
+                <td><button class="btn btn-danger btn-xs">Contact Liaison</button></td>
+              </tr>
+              <tr>
+                <td>Mar 6</td>
+                <td><strong>Public Policy Committee</strong><br><span class="text-xs text-muted">Zoom &bull; 9:00 AM</span></td>
+                <td>Govt Affairs</td>
+                <td>Member</td>
+                <td><span class="badge badge-blue">Open</span></td>
+                <td><button class="btn btn-primary btn-xs" onclick="showToast('RSVP submitted for Mar 6 meeting')">RSVP</button></td>
+              </tr>
+              <tr>
+                <td>Mar 11</td>
+                <td><strong>Education Advisory Board</strong><br><span class="text-xs text-muted">Assoc. Office &bull; 10:00 AM</span></td>
+                <td>Education</td>
+                <td><strong>Vice Chair</strong></td>
+                <td><span class="badge badge-green">Confirmed</span></td>
+                <td><button class="btn btn-secondary btn-xs">View Agenda</button></td>
+              </tr>
+              <tr>
+                <td>Mar 14</td>
+                <td><strong>Board of Directors</strong><br><span class="text-xs text-muted">Assoc. Office &bull; 10:00 AM</span></td>
+                <td>Governance</td>
+                <td>Member</td>
+                <td><span class="badge badge-amber">RSVP Needed</span></td>
+                <td><button class="btn btn-primary btn-xs" onclick="showToast('RSVP submitted for Board of Directors')">RSVP</button></td>
+              </tr>
+              <tr>
+                <td>Mar 22</td>
+                <td><strong>Community Outreach Committee</strong><br><span class="text-xs text-muted">Zoom &bull; 3:00 PM</span></td>
+                <td>Outreach</td>
+                <td>Member</td>
+                <td><span class="badge badge-blue">Open</span></td>
+                <td><button class="btn btn-primary btn-xs" onclick="showToast('RSVP submitted for Community Outreach')">RSVP</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tab-panel" data-group="meetings" data-tab="my-meetings">
+        <div class="card">
+          <div class="card-title">My Confirmed Meetings</div>
+          <div class="meeting-row">
+            <div class="meeting-dot" style="background:var(--success)"></div>
+            <div class="meeting-info"><strong>Education Advisory Board</strong><span>Mar 11 &bull; 10:00 AM &bull; Association Office &bull; You are Vice Chair</span></div>
+            <span class="badge badge-green">Confirmed</span>
+          </div>
+          <div class="meeting-row">
+            <div class="meeting-dot" style="background:var(--primary)"></div>
+            <div class="meeting-info"><strong>Legal Update Webinar</strong><span>Mar 10 &bull; 1:00 PM &bull; Zoom &bull; Registered</span></div>
+            <span class="badge badge-green">Registered</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" data-group="meetings" data-tab="all">
+        <div class="card">
+          <div class="card-title">All Meetings &mdash; March 2026</div>
+          <div class="meeting-row">
+            <div class="meeting-dot" style="background:var(--danger)"></div>
+            <div class="meeting-info"><strong>RPAC Steering Group</strong><span>Mar 5 &bull; Advocacy &bull; Open to members</span></div>
+          </div>
+          <div class="meeting-row">
+            <div class="meeting-dot" style="background:var(--primary)"></div>
+            <div class="meeting-info"><strong>Public Policy Committee</strong><span>Mar 6 &bull; Govt Affairs &bull; Open to members</span></div>
+          </div>
+          <div class="meeting-row">
+            <div class="meeting-dot" style="background:var(--success)"></div>
+            <div class="meeting-info"><strong>Education Advisory Board</strong><span>Mar 11 &bull; Education &bull; Committee members only</span></div>
+          </div>
+          <div class="meeting-row">
+            <div class="meeting-dot" style="background:var(--warning)"></div>
+            <div class="meeting-info"><strong>Board of Directors</strong><span>Mar 14 &bull; Governance &bull; Observers welcome</span></div>
+          </div>
+          <div class="meeting-row">
+            <div class="meeting-dot" style="background:#8b5cf6"></div>
+            <div class="meeting-info"><strong>Community Outreach Committee</strong><span>Mar 22 &bull; Outreach &bull; Open to members</span></div>
+          </div>
+          <div class="meeting-row">
+            <div class="meeting-dot" style="background:#0891b2"></div>
+            <div class="meeting-info"><strong>Legislative Breakfast</strong><span>Mar 28 &bull; Policy &bull; All members</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         PAGE: MEMBER DIRECTORY
+    ════════════════════════════════════ -->
+    <section class="page" id="page-directory">
+      <div class="page-header flex-between">
+        <div><h2>Member Directory</h2><p>4,200+ active members across 6 districts</p></div>
+      </div>
+      <div class="search-bar">
+        <span class="search-icon">&#128269;</span>
+        <input type="text" placeholder="Search by name, specialty, or district..." id="dir-search" oninput="filterDirectory(this.value)">
+      </div>
+      <div class="filter-tabs">
+        <button class="filter-btn active">All Members</button>
+        <button class="filter-btn">My District</button>
+        <button class="filter-btn">Brokers</button>
+        <button class="filter-btn">Affiliates</button>
+      </div>
+      <div class="member-grid" id="member-grid">
+        <div class="member-card">
+          <div class="member-avatar" style="background:#1d4ed8">AM</div>
+          <div class="member-name">Avery Morgan</div>
+          <div class="member-role">GRI &bull; Residential Broker</div>
+          <div class="member-district">District 4</div>
+          <button class="btn btn-secondary btn-sm mt-8" style="width:100%">View Profile</button>
+        </div>
+        <div class="member-card">
+          <div class="member-avatar" style="background:#059669">MP</div>
+          <div class="member-name">Morgan Patel</div>
+          <div class="member-role">MAI &bull; Appraisal Specialist</div>
+          <div class="member-district">District 2</div>
+          <button class="btn btn-secondary btn-sm mt-8" style="width:100%">View Profile</button>
+        </div>
+        <div class="member-card">
+          <div class="member-avatar" style="background:#7c3aed">SK</div>
+          <div class="member-name">Sage Kim</div>
+          <div class="member-role">CPM &bull; Property Management</div>
+          <div class="member-district">District 5</div>
+          <button class="btn btn-secondary btn-sm mt-8" style="width:100%">View Profile</button>
+        </div>
+        <div class="member-card">
+          <div class="member-avatar" style="background:#b45309">CR</div>
+          <div class="member-name">Chris Rivera</div>
+          <div class="member-role">CCIM &bull; Commercial</div>
+          <div class="member-district">District 1</div>
+          <button class="btn btn-secondary btn-sm mt-8" style="width:100%">View Profile</button>
+        </div>
+        <div class="member-card">
+          <div class="member-avatar" style="background:#0891b2">TB</div>
+          <div class="member-name">Taylor Brooks</div>
+          <div class="member-role">ABR &bull; Buyer&apos;s Agent</div>
+          <div class="member-district">District 4</div>
+          <button class="btn btn-secondary btn-sm mt-8" style="width:100%">View Profile</button>
+        </div>
+        <div class="member-card">
+          <div class="member-avatar" style="background:#be185d">SN</div>
+          <div class="member-name">Sam Nguyen</div>
+          <div class="member-role">SRS &bull; Seller&apos;s Rep</div>
+          <div class="member-district">District 3</div>
+          <button class="btn btn-secondary btn-sm mt-8" style="width:100%">View Profile</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         PAGE: CONTRIBUTE
+    ════════════════════════════════════ -->
+    <section class="page" id="page-contribute">
+      <div class="page-header">
+        <h2>Contribute</h2>
+        <p>RPAC and advocacy fund contributions</p>
+      </div>
+
+      <div class="grid-2 section-gap">
+        <div class="card">
+          <div class="card-title">2026 RPAC Pledge</div>
+          <div style="font-size:1.6rem;font-weight:800;color:var(--primary)">$150</div>
+          <div class="text-sm text-muted mt-4">of $300 annual pledge &bull; 50% complete</div>
+          <div class="pledge-bar-wrap">
+            <div class="pledge-bar-fill" style="width:50%"></div>
+          </div>
+          <div class="flex-row mt-8">
+            <button class="btn btn-primary" onclick="showToast('Redirecting to secure contribution page...')">Make a Contribution</button>
+            <button class="btn btn-secondary btn-sm">Update Pledge</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Your Impact</div>
+          <p class="text-sm" style="line-height:1.6;color:var(--text-2)">
+            Your RPAC contributions directly fund state and local advocacy campaigns protecting homeowners and real estate professionals. The chapter is currently <strong>83% of its $25,000 chapter goal</strong>.
           </p>
-          <div class="c3-hero-cta">
-            <button class="c3-btn-primary">View all 4 action items</button>
-            <button class="c3-btn-outline">Continue CE course</button>
-            <button class="c3-btn-outline">Vote in election →</button>
-          </div>
-        </div>
-
-        <!-- Urgent action list -->
-        <div class="c3-urgent">
-          <h4>Action items this week</h4>
-
-          <div class="c3-urgent-item">
-            <div class="c3-urgent-emoji">🔴</div>
-            <div class="body">
-              <p>RPAC meeting RSVP overdue</p>
-              <span>Mar 5 · Contact your liaison</span>
+          <div class="mt-12">
+            <div class="flex-between text-xs text-muted mb-12">
+              <span>Chapter goal 2026</span><span>$20,750 / $25,000 raised</span>
             </div>
-            <div class="action"><a href="#" class="c3-act-link">Resolve →</a></div>
-          </div>
-          <div class="c3-urgent-item">
-            <div class="c3-urgent-emoji">⚠️</div>
-            <div class="body">
-              <p>Zoning reform testimony</p>
-              <span>Deadline: 48 hrs · Submit impact story</span>
+            <div class="pledge-bar-wrap">
+              <div class="pledge-bar-fill" style="width:83%"></div>
             </div>
-            <div class="action"><a href="#" class="c3-act-link">Submit →</a></div>
-          </div>
-          <div class="c3-urgent-item">
-            <div class="c3-urgent-emoji">🗳️</div>
-            <div class="body">
-              <p>Vote: Treasurer election</p>
-              <span>Open through Mar 21</span>
-            </div>
-            <div class="action"><a href="#" class="c3-act-link">Vote →</a></div>
-          </div>
-          <div class="c3-urgent-item">
-            <div class="c3-urgent-emoji">💳</div>
-            <div class="body">
-              <p>Invoice #5021 due Mar 30</p>
-              <span>MLS Analytics Add-on — $79</span>
-            </div>
-            <div class="action"><a href="#" class="c3-act-link">Pay →</a></div>
-          </div>
-          <div class="c3-urgent-item">
-            <div class="c3-urgent-emoji">📋</div>
-            <div class="body">
-              <p>Complete Fair Housing module 5</p>
-              <span>2 of 4 remaining · Due Apr 12</span>
-            </div>
-            <div class="action"><a href="#" class="c3-act-link">Resume →</a></div>
           </div>
         </div>
       </div>
 
-      <!-- Three pillar columns -->
-      <div class="c3-pillars">
-
-        <!-- INFORM -->
-        <div class="c3-pillar c3-pillar-inform">
-          <div class="c3-pillar-head">
-            <div class="c3-pillar-icon">📰</div>
-            <div>
-              <strong>Inform</strong>
-              <span class="sub">Policy, market data &amp; industry news</span>
-            </div>
-          </div>
-
-          <div class="c3-story">
-            <div class="c3-story-tag" style="color:#92400e;">Policy alert</div>
-            <h5>State zoning reform bill advances — testimony window closes Wednesday</h5>
-            <p>HB 2041 moves to committee vote. Members in Districts 3–6 are urged to submit impact statements by 5 PM Wednesday.</p>
-            <a href="#" style="color:#92400e;font-size:0.76rem;font-weight:700;text-decoration:none;display:inline-block;margin-top:6px;">Read briefing + submit →</a>
-          </div>
-
-          <div class="c3-story">
-            <div class="c3-story-tag" style="color:#b45309;">Market data</div>
-            <h5>February market snapshot — inventory up 14% in metro area</h5>
-            <p>New NAR market statistics dashboard available with forward-looking affordability analysis for your district.</p>
-            <a href="#" style="color:#92400e;font-size:0.76rem;font-weight:700;text-decoration:none;display:inline-block;margin-top:6px;">View dashboard →</a>
-          </div>
-
-          <div class="c3-story">
-            <div class="c3-story-tag" style="color:#7c6757;">Advocacy</div>
-            <h5>RPAC annual pledge drive — 83% of chapter goal reached</h5>
-            <p>Your chapter is $4,200 away from the $25,000 goal. Contributions directly fund state-level advocacy campaigns.</p>
-            <a href="#" style="color:#92400e;font-size:0.76rem;font-weight:700;text-decoration:none;display:inline-block;margin-top:6px;">Contribute now →</a>
-          </div>
-
-          <div class="c3-story">
-            <div class="c3-story-tag" style="color:#7c6757;">Industry news</div>
-            <h5>NAR 2026 Member Guide — new benefits and tools available</h5>
-            <p>Review the updated guide for RPR enhancements, new tech partner discounts, and Code of Ethics training requirements.</p>
-          </div>
-        </div>
-
-        <!-- LEARN -->
-        <div class="c3-pillar c3-pillar-learn">
-          <div class="c3-pillar-head">
-            <div class="c3-pillar-icon">🎓</div>
-            <div>
-              <strong>Learn</strong>
-              <span class="sub">CE courses, designations &amp; events</span>
-            </div>
-          </div>
-
-          <div class="c3-course">
-            <div class="course-head">
-              <h5>Fair Housing &amp; Ethics 2026</h5>
-              <span class="pct">72%</span>
-            </div>
-            <div class="course-bar"><div class="course-bar-fill" style="width:72%;"></div></div>
-            <div class="due">Deadline: Apr 12 · Module 5 next · 2 CE credits remaining</div>
-            <a href="#" style="color:#1d4ed8;font-size:0.76rem;font-weight:700;text-decoration:none;display:inline-block;margin-top:6px;">Continue course →</a>
-          </div>
-
-          <div class="c3-course">
-            <div class="course-head">
-              <h5>Agency Law Update</h5>
-              <span class="pct" style="color:#16a34a;">Done</span>
-            </div>
-            <div class="course-bar"><div class="course-bar-fill" style="width:100%;background:#bbf7d0;"></div></div>
-            <div class="due">Certificate ready to download</div>
-            <a href="#" style="color:#1d4ed8;font-size:0.76rem;font-weight:700;text-decoration:none;display:inline-block;margin-top:6px;">Download certificate →</a>
-          </div>
-
-          <div class="c3-course">
-            <div class="course-head"><h5>Risk Management Essentials</h5><span class="pct" style="color:#9ca3af;">Not started</span></div>
-            <div class="course-bar"><div class="course-bar-fill" style="width:0%;"></div></div>
-            <div class="due">Recommended before Jun 30 · 3 CE credits</div>
-            <a href="#" style="color:#1d4ed8;font-size:0.76rem;font-weight:700;text-decoration:none;display:inline-block;margin-top:6px;">Enroll →</a>
-          </div>
-
-          <div style="margin-top:14px;padding-top:14px;border-top:1px solid #e5e7eb;">
-            <div style="font-size:0.72rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px;">Upcoming classes</div>
-            <div style="font-size:0.82rem;color:#374151;margin-bottom:5px;">📅 Legal Update Webinar — Mar 10, 1:00 PM</div>
-            <div style="font-size:0.82rem;color:#374151;margin-bottom:5px;">📅 Broker Roundtable — Mar 8, 9:00 AM</div>
-            <div style="font-size:0.82rem;color:#374151;margin-bottom:5px;">📅 Commercial Forum — Mar 12, 11:30 AM</div>
-            <a href="#" style="color:#1d4ed8;font-size:0.76rem;font-weight:700;text-decoration:none;display:inline-block;margin-top:6px;">Browse full course catalog →</a>
-          </div>
-        </div>
-
-        <!-- ACT -->
-        <div class="c3-pillar c3-pillar-act">
-          <div class="c3-pillar-head">
-            <div class="c3-pillar-icon">✅</div>
-            <div>
-              <strong>Act</strong>
-              <span class="sub">Events, committees, elections &amp; dues</span>
-            </div>
-          </div>
-
-          <div class="c3-check-item">
-            <div class="c3-checkbox">✓</div>
-            <div class="body">
-              <p>MLS annual dues paid</p>
-              <span>Invoice #4812 · Feb 28</span>
-            </div>
-            <span class="c3-act-link" style="color:#16a34a;">✓ Done</span>
-          </div>
-
-          <div class="c3-check-item">
-            <div class="c3-checkbox"></div>
-            <div class="body">
-              <p>Pay MLS analytics add-on</p>
-              <span>Invoice #5021 · $79 · Due Mar 30</span>
-            </div>
-            <a href="#" class="c3-act-link">Pay →</a>
-          </div>
-
-          <div class="c3-check-item">
-            <div class="c3-checkbox"></div>
-            <div class="body">
-              <p>RSVP: Public Policy Committee</p>
-              <span>Mar 6 · 9:00 AM · Zoom</span>
-            </div>
-            <a href="#" class="c3-act-link">RSVP →</a>
-          </div>
-
-          <div class="c3-check-item">
-            <div class="c3-checkbox"></div>
-            <div class="body">
-              <p>Vote in Treasurer election</p>
-              <span>Open through Mar 21</span>
-            </div>
-            <a href="#" class="c3-act-link">Vote →</a>
-          </div>
-
-          <div class="c3-check-item">
-            <div class="c3-checkbox"></div>
-            <div class="body">
-              <p>Register: Regional Networking Summit</p>
-              <span>Mar 15 · All day · Convention Center</span>
-            </div>
-            <a href="#" class="c3-act-link">Register →</a>
-          </div>
-
-          <div class="c3-check-item">
-            <div class="c3-checkbox"></div>
-            <div class="body">
-              <p>Submit 2026 committee interest form</p>
-              <span>Deadline: Jun 30</span>
-            </div>
-            <a href="#" class="c3-act-link">Apply →</a>
-          </div>
-
-          <div class="c3-check-item">
-            <div class="c3-checkbox"></div>
-            <div class="body">
-              <p>RPAC annual pledge contribution</p>
-              <span>Goal: $300 · $150 contributed</span>
-            </div>
-            <a href="#" class="c3-act-link">Give →</a>
-          </div>
-
-          <div style="margin-top:14px;padding:12px;background:#f0fdf4;border-radius:10px;border:1px solid #bbf7d0;">
-            <div style="font-size:0.72rem;font-weight:700;color:#15803d;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;">Engage: Member Directory</div>
-            <p style="font-size:0.78rem;color:#374151;">247 profile views this month · 42 referrals initiated from your listing.</p>
-            <a href="#" style="color:#15803d;font-size:0.76rem;font-weight:700;text-decoration:none;display:inline-block;margin-top:5px;">Update your profile →</a>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="c3-footer">
-        <p>Realtors Association Member Portal &bull; NRDS# 12345678 &bull; Patterns: NAR benefit pillars, Ohio REALTORS, MetroTex, HCAR</p>
-        <div class="c3-footer-links">
-          <a href="https://portal.ohiorealtors.org/" target="_blank" rel="noreferrer">Ohio REALTORS portal</a>
-          <a href="https://www.mymetrotex.com/member-portal/" target="_blank" rel="noreferrer">MetroTex portal</a>
-          <a href="https://www.nar.realtor/membership" target="_blank" rel="noreferrer">NAR membership</a>
+      <div class="card">
+        <div class="card-title">Contribution History</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Amount</th><th>Campaign</th><th>Receipt</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>Dec 1, 2025</td><td><strong>$100</strong></td>
+                <td>Annual RPAC Pledge</td>
+                <td><button class="btn btn-secondary btn-xs">Download</button></td>
+              </tr>
+              <tr>
+                <td>Aug 15, 2025</td><td><strong>$50</strong></td>
+                <td>Housing Trust Fund</td>
+                <td><button class="btn btn-secondary btn-xs">Download</button></td>
+              </tr>
+              <tr>
+                <td>Mar 20, 2025</td><td><strong>$50</strong></td>
+                <td>Legislative Action Fund</td>
+                <td><button class="btn btn-secondary btn-xs">Download</button></td>
+              </tr>
+              <tr>
+                <td>Nov 5, 2024</td><td><strong>$100</strong></td>
+                <td>Annual RPAC Pledge</td>
+                <td><button class="btn btn-secondary btn-xs">Download</button></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         PAGE: COMMITTEES
+    ════════════════════════════════════ -->
+    <section class="page" id="page-committees">
+      <div class="page-header">
+        <h2>Committees</h2>
+        <p>Your active committee memberships and open applications</p>
+      </div>
+
+      <div class="card section-gap">
+        <div class="card-title">My Active Committees</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Committee</th><th>Role</th><th>Next Meeting</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>Government Affairs</strong><br><span class="text-xs text-muted">Advocacy &bull; District 4</span></td>
+                <td>Member</td>
+                <td>Mar 6 &bull; Zoom</td>
+                <td><span class="badge badge-green">Active</span></td>
+                <td><button class="btn btn-secondary btn-xs">Details</button></td>
+              </tr>
+              <tr>
+                <td><strong>Education Advisory Board</strong><br><span class="text-xs text-muted">Education division</span></td>
+                <td><strong>Vice Chair</strong></td>
+                <td>Mar 11 &bull; Assoc. Office</td>
+                <td><span class="badge badge-green">Active</span></td>
+                <td><button class="btn btn-secondary btn-xs">Details</button></td>
+              </tr>
+              <tr>
+                <td><strong>Community Outreach</strong><br><span class="text-xs text-muted">Community engagement</span></td>
+                <td>Member</td>
+                <td>Mar 22 &bull; Zoom</td>
+                <td><span class="badge badge-green">Active</span></td>
+                <td><button class="btn btn-secondary btn-xs">Details</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Apply for a Committee <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.78rem;color:var(--muted)">&mdash; Applications open through Jun 30</span></div>
+        <div class="grid-2">
+          <div class="card" style="background:var(--bg)">
+            <div class="font-700">Professional Standards</div>
+            <div class="text-xs text-muted mt-4">Reviews member ethics cases and Code of Ethics complaints.</div>
+            <button class="btn btn-primary btn-sm mt-8" onclick="showToast('Committee application submitted!')">Apply</button>
+          </div>
+          <div class="card" style="background:var(--bg)">
+            <div class="font-700">Risk Management Council</div>
+            <div class="text-xs text-muted mt-4">Advises on member risk, liability, and industry standards.</div>
+            <button class="btn btn-primary btn-sm mt-8" onclick="showToast('Committee application submitted!')">Apply</button>
+          </div>
+          <div class="card" style="background:var(--bg)">
+            <div class="font-700">Young Professionals Network</div>
+            <div class="text-xs text-muted mt-4">Supports members in their first 5 years in the industry.</div>
+            <button class="btn btn-primary btn-sm mt-8" onclick="showToast('Committee application submitted!')">Apply</button>
+          </div>
+          <div class="card" style="background:var(--bg)">
+            <div class="font-700">Commercial Real Estate</div>
+            <div class="text-xs text-muted mt-4">Focuses on commercial market trends and advocacy.</div>
+            <button class="btn btn-primary btn-sm mt-8" onclick="showToast('Committee application submitted!')">Apply</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         PAGE: BILLING
+    ════════════════════════════════════ -->
+    <section class="page" id="page-billing">
+      <div class="page-header flex-between">
+        <div><h2>Billing</h2><p>Invoices, payment history, and payment methods</p></div>
+        <span class="badge badge-red" style="font-size:0.84rem;padding:7px 14px;">$79 Outstanding</span>
+      </div>
+
+      <div class="billing-alert">
+        <span style="font-size:20px;">&#9888;</span>
+        <p>Invoice #5021 &mdash; MLS Analytics Add-on &mdash; <strong>$79 due March 30, 2026</strong></p>
+        <button class="btn btn-primary btn-sm" onclick="openPayModal()">Pay Now</button>
+      </div>
+
+      <div class="card section-gap">
+        <div class="card-title">Invoices</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Invoice #</th><th>Description</th><th>Amount</th><th>Due / Paid</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>#5021</strong></td>
+                <td>MLS Analytics Add-on</td>
+                <td><strong>$79.00</strong></td>
+                <td>Due Mar 30, 2026</td>
+                <td><span class="badge badge-red">Unpaid</span></td>
+                <td><button class="btn btn-primary btn-xs" onclick="openPayModal()">Pay Now</button></td>
+              </tr>
+              <tr>
+                <td><strong>#4812</strong></td>
+                <td>MLS Annual Subscription</td>
+                <td>$320.00</td>
+                <td>Paid Feb 28, 2026</td>
+                <td><span class="badge badge-green">Paid</span></td>
+                <td><button class="btn btn-secondary btn-xs">Receipt</button></td>
+              </tr>
+              <tr>
+                <td><strong>#4633</strong></td>
+                <td>2026 Association Dues</td>
+                <td>$195.00</td>
+                <td>Paid Jan 15, 2026</td>
+                <td><span class="badge badge-green">Paid</span></td>
+                <td><button class="btn btn-secondary btn-xs">Receipt</button></td>
+              </tr>
+              <tr>
+                <td><strong>#4201</strong></td>
+                <td>CE Course: Fair Housing 2025</td>
+                <td>$49.00</td>
+                <td>Paid Oct 3, 2025</td>
+                <td><span class="badge badge-green">Paid</span></td>
+                <td><button class="btn btn-secondary btn-xs">Receipt</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Payment Methods</div>
+        <div class="flex-row" style="margin-bottom:12px;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <span style="font-size:20px;">&#127968;</span>
+            <div>
+              <div class="font-600 text-sm">ACH Bank Transfer</div>
+              <div class="text-xs text-muted">Checking account ending 0402 &bull; Default</div>
+            </div>
+            <span class="badge badge-green" style="margin-left:8px;">Default</span>
+          </div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Payment method form would open here')">&#43; Add Payment Method</button>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         PAGE: ELECTIONS
+    ════════════════════════════════════ -->
+    <section class="page" id="page-elections">
+      <div class="page-header">
+        <h2>Elections</h2>
+        <p>Active ballot &bull; Voting closes March 21, 2026</p>
+      </div>
+
+      <div class="election-card">
+        <div class="flex-between mb-12">
+          <div>
+            <div class="election-title">Association Treasurer</div>
+            <div class="election-meta">&#128338; Voting open through Mar 21, 2026 &bull; Select 1 candidate</div>
+          </div>
+          <span class="badge badge-amber">Vote Required</span>
+        </div>
+        <div class="candidates">
+          <div class="candidate">
+            <strong>Sarah Mitchell</strong>
+            <span>Current CFO of Mitchell Realty Group. 12 years of association involvement, former Finance Committee chair.</span>
+          </div>
+          <div class="candidate">
+            <strong>David Chen</strong>
+            <span>Independent broker with a background in corporate finance. Board member since 2021, known for budget transparency initiatives.</span>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="openVoteModal('Treasurer','sarah,Sarah Mitchell|david,David Chen')">Cast Your Vote &rarr;</button>
+      </div>
+
+      <div class="election-card">
+        <div class="flex-between mb-12">
+          <div>
+            <div class="election-title">At-Large Director (2 seats)</div>
+            <div class="election-meta">&#128338; Voting open through Mar 21, 2026 &bull; Select up to 2 candidates</div>
+          </div>
+          <span class="badge badge-amber">Vote Required</span>
+        </div>
+        <div class="candidates" style="grid-template-columns:repeat(2,1fr)">
+          <div class="candidate">
+            <strong>Avery Morgan</strong>
+            <span>Residential broker, District 4. Focuses on member education and professional standards.</span>
+          </div>
+          <div class="candidate">
+            <strong>Marcus Washington</strong>
+            <span>Commercial real estate, District 1. Advocates for small brokerage support programs.</span>
+          </div>
+          <div class="candidate">
+            <strong>Priya Patel</strong>
+            <span>Property management specialist, District 5. Champions technology modernization for members.</span>
+          </div>
+          <div class="candidate">
+            <strong>Tom Bradley</strong>
+            <span>Veteran broker, District 3. Strong focus on legislative advocacy and RPAC engagement.</span>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="openVoteModal('At-Large Director','avery,Avery Morgan|marcus,Marcus Washington|priya,Priya Patel|tom,Tom Bradley')">Cast Your Vote &rarr;</button>
+      </div>
+
+      <div class="card" style="margin-top:6px;">
+        <div class="card-title">Past Elections</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Election</th><th>Year</th><th>Result</th><th>Your Vote</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Association President</strong></td><td>2025</td><td>Jane Torres elected</td><td>&#10003; Voted</td></tr>
+              <tr><td><strong>Treasurer</strong></td><td>2024</td><td>Michael Rios elected</td><td>&#10003; Voted</td></tr>
+              <tr><td><strong>At-Large Director</strong></td><td>2024</td><td>2 of 3 candidates elected</td><td>&#10003; Voted</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         PAGE: ONLINE STORE
+    ════════════════════════════════════ -->
+    <section class="page" id="page-store">
+      <div class="page-header flex-between">
+        <div><h2>Online Store</h2><p>Forms, toolkits, and member resources</p></div>
+        <div class="flex-row">
+          <span id="cart-badge" class="badge badge-blue" style="display:none">Cart: <span id="cart-count">0</span> items</span>
+          <button class="btn btn-secondary btn-sm" onclick="showToast('Cart is empty')">&#128722; View Cart</button>
+        </div>
+      </div>
+
+      <div class="store-grid">
+        <div class="store-card">
+          <div class="store-icon">&#128196;</div>
+          <div class="store-name">2026 Contract Forms Bundle</div>
+          <div class="store-desc">Complete set of updated residential and commercial contract forms. Includes all 2026 legislative revisions.</div>
+          <div class="store-footer">
+            <span class="store-price">$49</span>
+            <button class="btn btn-primary btn-sm" onclick="addToCart(this)">Add to Cart</button>
+          </div>
+        </div>
+        <div class="store-card">
+          <div class="store-icon">&#128218;</div>
+          <div class="store-name">Broker Compliance Toolkit</div>
+          <div class="store-desc">Step-by-step compliance checklists, disclosure templates, and office policy guides. Digital download.</div>
+          <div class="store-footer">
+            <span class="store-price">$29</span>
+            <button class="btn btn-primary btn-sm" onclick="addToCart(this)">Add to Cart</button>
+          </div>
+        </div>
+        <div class="store-card">
+          <div class="store-icon">&#128247;</div>
+          <div class="store-name">Social Media Brand Assets</div>
+          <div class="store-desc">REALTOR&reg; branded Canva templates for social media. Editable graphics for listings, market updates, and more.</div>
+          <div class="store-footer">
+            <span class="store-price free">Free</span>
+            <button class="btn btn-success btn-sm" onclick="showToast('Downloading brand assets...')">Download</button>
+          </div>
+        </div>
+        <div class="store-card">
+          <div class="store-icon">&#128202;</div>
+          <div class="store-name">Market Report Template</div>
+          <div class="store-desc">Excel and PDF market report templates. Customizable for your district. Includes data visualization charts.</div>
+          <div class="store-footer">
+            <span class="store-price">$15</span>
+            <button class="btn btn-primary btn-sm" onclick="addToCart(this)">Add to Cart</button>
+          </div>
+        </div>
+        <div class="store-card">
+          <div class="store-icon">&#128220;</div>
+          <div class="store-name">Professional Standards Guide</div>
+          <div class="store-desc">Comprehensive PDF guide covering Code of Ethics, grievance procedures, and professional standards best practices.</div>
+          <div class="store-footer">
+            <span class="store-price">$19</span>
+            <button class="btn btn-primary btn-sm" onclick="addToCart(this)">Add to Cart</button>
+          </div>
+        </div>
+        <div class="store-card">
+          <div class="store-icon">&#128681;</div>
+          <div class="store-name">REALTOR&reg; Yard Signs (10-pack)</div>
+          <div class="store-desc">Durable aluminum yard signs with REALTOR&reg; branding. Ships within 5 business days. Customization available.</div>
+          <div class="store-footer">
+            <span class="store-price">$89</span>
+            <button class="btn btn-primary btn-sm" onclick="addToCart(this)">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         PAGE: RESOURCES & SSO
+    ════════════════════════════════════ -->
+    <section class="page" id="page-resources">
+      <div class="page-header">
+        <h2>Resources &amp; Integrated Services</h2>
+        <p>These links connect to integrated services using your association login. Once 2FA is enabled, this hub will serve as your IdP for MLS, forms, transaction management, and more.</p>
+      </div>
+
+      <div class="card-title" style="margin-bottom:12px;">Active Single Sign-On Services</div>
+      <div class="sso-grid section-gap">
+        <div class="sso-tile">
+          <div class="sso-icon">&#127968;</div>
+          <div class="sso-name">Matrix MLS</div>
+          <div class="sso-desc">Access listings, CMA tools, market data, and client search portals. Synced with your NRDS#.</div>
+          <a href="#" class="btn btn-primary btn-sm sso-launch" onclick="showToast('Launching Matrix MLS via SSO...');return false;">Launch &rarr;</a>
+        </div>
+        <div class="sso-tile">
+          <div class="sso-icon">&#128196;</div>
+          <div class="sso-name">zipForm Plus</div>
+          <div class="sso-desc">Digital forms, contracts, and e-signatures for residential and commercial transactions.</div>
+          <a href="#" class="btn btn-primary btn-sm sso-launch" onclick="showToast('Launching zipForm Plus via SSO...');return false;">Launch &rarr;</a>
+        </div>
+        <div class="sso-tile">
+          <div class="sso-icon">&#128257;</div>
+          <div class="sso-name">DotLoop</div>
+          <div class="sso-desc">Transaction management, document storage, and e-signature workflows for your office.</div>
+          <a href="#" class="btn btn-primary btn-sm sso-launch" onclick="showToast('Launching DotLoop via SSO...');return false;">Launch &rarr;</a>
+        </div>
+        <div class="sso-tile">
+          <div class="sso-icon">&#128197;</div>
+          <div class="sso-name">ShowingTime</div>
+          <div class="sso-desc">Schedule and manage property showings, confirmations, and agent feedback in one place.</div>
+          <a href="#" class="btn btn-primary btn-sm sso-launch" onclick="showToast('Launching ShowingTime via SSO...');return false;">Launch &rarr;</a>
+        </div>
+        <div class="sso-tile">
+          <div class="sso-icon">&#128200;</div>
+          <div class="sso-name">RPR &mdash; Realtors Property Resource</div>
+          <div class="sso-desc">Market insights, property valuations, neighborhood data, and prospecting tools. NAR member benefit.</div>
+          <a href="#" class="btn btn-primary btn-sm sso-launch" onclick="showToast('Launching RPR via SSO...');return false;">Launch &rarr;</a>
+        </div>
+        <div class="sso-tile">
+          <div class="sso-icon">&#127941;</div>
+          <div class="sso-name">C2EX</div>
+          <div class="sso-desc">Commitment to Excellence &mdash; track and fulfill your Code of Ethics training requirements.</div>
+          <a href="#" class="btn btn-primary btn-sm sso-launch" onclick="showToast('Launching C2EX via SSO...');return false;">Launch &rarr;</a>
+        </div>
+      </div>
+
+      <div class="card-title" style="margin-bottom:12px;">Coming Soon <span style="font-weight:400;font-size:0.76rem;text-transform:none;letter-spacing:0;">&mdash; Pending 2FA enablement &amp; IdP configuration</span></div>
+      <div class="sso-grid section-gap">
+        <div class="sso-tile coming-soon">
+          <div class="sso-icon">&#127968;</div>
+          <div class="sso-name">MLS Direct SSO</div>
+          <div class="sso-desc">Full IdP-based login &mdash; pending 2FA rollout on Cobalt&apos;s new release.</div>
+          <span class="badge badge-gray">Pending 2FA</span>
+        </div>
+        <div class="sso-tile coming-soon">
+          <div class="sso-icon">&#128196;</div>
+          <div class="sso-name">Forms Library v2</div>
+          <div class="sso-desc">Next-generation forms management with integrated e-sign and audit trail.</div>
+          <span class="badge badge-gray">Coming Soon</span>
+        </div>
+        <div class="sso-tile coming-soon">
+          <div class="sso-icon">&#128197;</div>
+          <div class="sso-name">ShowingTime+</div>
+          <div class="sso-desc">Enhanced showing management with agent scheduling and buyer tour tools.</div>
+          <span class="badge badge-gray">Coming Soon</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Custom Resource Links <a href="#" onclick="showToast('Admin link manager opens here');return false;">Manage links</a></div>
+        <p class="text-sm text-muted" style="margin-bottom:14px;">Boards can add custom links to member resources, internal tools, or external services.</p>
+        <div class="grid-3">
+          <div style="border:1px solid var(--border);border-radius:9px;padding:12px;display:flex;align-items:center;gap:10px;">
+            <span style="font-size:18px;">&#128216;</span>
+            <div style="flex:1"><div class="font-600 text-sm">Member Handbook</div><div class="text-xs text-muted">PDF &bull; 2026 edition</div></div>
+            <a href="#" class="btn btn-secondary btn-xs" onclick="showToast('Opening member handbook...');return false;">Open</a>
+          </div>
+          <div style="border:1px solid var(--border);border-radius:9px;padding:12px;display:flex;align-items:center;gap:10px;">
+            <span style="font-size:18px;">&#128222;</span>
+            <div style="flex:1"><div class="font-600 text-sm">Staff Directory</div><div class="text-xs text-muted">Association office contacts</div></div>
+            <a href="#" class="btn btn-secondary btn-xs" onclick="showToast('Opening staff directory...');return false;">Open</a>
+          </div>
+          <div style="border:2px dashed #cbd5e1;border-radius:9px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="showToast('Admin: add new resource link here')">
+            <span style="font-size:18px;color:var(--muted)">&#43;</span>
+            <div><div class="text-sm" style="color:var(--muted)">Add resource link</div><div class="text-xs text-muted">Admin only</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /main-content -->
+
+  <!-- FOOTER -->
+  <div class="portal-footer">
+    <span>Realtors Association Member Portal &bull; NRDS# 12345678 &bull; Concept: My Portal &bull; Inspired by Virginia REALTORS, HCAR, MetroTex, NAR</span>
+    <span>Your message appeared to be cut off at "See if it can incorporate" &mdash; <a href="#" onclick="return false;">let us know what to add!</a></span>
+  </div>
+</div><!-- /main-wrap -->
+
+<!-- ════════════════════════════════════
+     MODALS
+════════════════════════════════════ -->
+
+<!-- Pay Invoice Modal -->
+<div class="modal-backdrop" id="pay-modal">
+  <div class="modal">
+    <h3>Pay Invoice #5021</h3>
+    <p class="modal-sub">MLS Analytics Add-on &bull; Due March 30, 2026</p>
+    <div style="background:var(--bg);border-radius:9px;padding:14px;margin-bottom:14px;">
+      <div class="flex-between text-sm"><span>MLS Analytics Add-on</span><strong>$79.00</strong></div>
+      <div class="flex-between text-xs text-muted mt-4"><span>Payment method</span><span>ACH ending 0402 (default)</span></div>
     </div>
-  </div><!-- /c3 -->
+    <p class="text-sm text-muted">You authorize a one-time payment of $79.00 from your ACH account ending 0402.</p>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('pay-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmPayment()">Confirm Payment &rarr;</button>
+    </div>
+  </div>
+</div>
 
-  <script>
-    const buttons = document.querySelectorAll(".switcher button");
-    const concepts = document.querySelectorAll(".concept");
+<!-- Vote Modal -->
+<div class="modal-backdrop" id="vote-modal">
+  <div class="modal">
+    <h3 id="vote-modal-title">Cast Your Vote</h3>
+    <p class="modal-sub" id="vote-modal-sub">Select a candidate below</p>
+    <div id="vote-candidates"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('vote-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitVote()">Submit Vote &rarr;</button>
+    </div>
+  </div>
+</div>
 
-    buttons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const target = btn.getAttribute("data-concept");
+<!-- Toast -->
+<div class="toast" id="toast"></div>
 
-        buttons.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
+<script>
+// ── PAGE NAVIGATION ──────────────────────────────
+const PAGE_META = {
+  dashboard:   { title: 'Dashboard',           sub: 'Welcome back, Jordan' },
+  calendar:    { title: 'Calendar of Events',  sub: 'March 2026' },
+  courses:     { title: 'Course List',         sub: 'Continuing education & certifications' },
+  meetings:    { title: 'Meeting List',        sub: 'Committee & governance meetings' },
+  directory:   { title: 'Member Directory',    sub: '4,200+ members' },
+  contribute:  { title: 'Contribute',          sub: 'RPAC & advocacy fund' },
+  committees:  { title: 'Committees',          sub: 'Your memberships & applications' },
+  billing:     { title: 'Billing',             sub: 'Invoices & payment methods' },
+  elections:   { title: 'Elections',           sub: 'Voting open through March 21' },
+  store:       { title: 'Online Store',        sub: 'Forms, toolkits & resources' },
+  resources:   { title: 'Resources & SSO',     sub: 'Integrated services & single sign-on' },
+};
 
-        concepts.forEach(c => c.classList.remove("active"));
-        document.getElementById(target).classList.add("active");
+function navigate(pageId) {
+  // Hide all pages
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  // Show target
+  const target = document.getElementById('page-' + pageId);
+  if (target) target.classList.add('active');
 
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      });
-    });
-  </script>
+  // Update nav active state
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.classList.toggle('active', item.getAttribute('data-page') === pageId);
+  });
+
+  // Update topbar
+  const meta = PAGE_META[pageId] || {};
+  const titleEl = document.getElementById('topbar-title');
+  const subEl = document.getElementById('topbar-sub');
+  if (titleEl) titleEl.textContent = meta.title || pageId;
+  if (subEl) subEl.textContent = meta.sub || '';
+
+  // Close sidebar on mobile
+  closeSidebar();
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Wire nav items
+document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+  item.addEventListener('click', () => navigate(item.getAttribute('data-page')));
+});
+
+// ── MOBILE SIDEBAR ───────────────────────────────
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
+const hamburger = document.getElementById('hamburger');
+
+function openSidebar() {
+  sidebar.classList.add('open');
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+  sidebar.classList.remove('open');
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+hamburger.addEventListener('click', openSidebar);
+overlay.addEventListener('click', closeSidebar);
+
+// ── TABS ─────────────────────────────────────────
+function switchTab(btn, group, tabId) {
+  // Deactivate all tabs in this group
+  const section = btn.closest('.page') || document;
+  section.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  section.querySelectorAll('[data-group="' + group + '"]').forEach(p => p.classList.remove('active'));
+  // Activate clicked
+  btn.classList.add('active');
+  const panel = section.querySelector('[data-group="' + group + '"][data-tab="' + tabId + '"]');
+  if (panel) panel.classList.add('active');
+}
+
+// ── CALENDAR FILTER ───────────────────────────────
+function filterEvents(btn, type) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#events-list .event-card').forEach(card => {
+    if (type === 'all') {
+      card.style.display = '';
+    } else {
+      const types = (card.getAttribute('data-type') || '').split(' ');
+      card.style.display = types.includes(type) ? '' : 'none';
+    }
+  });
+}
+
+// ── DIRECTORY SEARCH ──────────────────────────────
+function filterDirectory(query) {
+  const q = query.toLowerCase();
+  document.querySelectorAll('#member-grid .member-card').forEach(card => {
+    const text = card.textContent.toLowerCase();
+    card.style.display = text.includes(q) ? '' : 'none';
+  });
+}
+
+// ── CART ─────────────────────────────────────────
+let cartCount = 0;
+function addToCart(btn) {
+  cartCount++;
+  const badge = document.getElementById('cart-badge');
+  const count = document.getElementById('cart-count');
+  if (badge) { badge.style.display = 'inline-flex'; }
+  if (count) count.textContent = cartCount;
+  showToast('Added to cart \u2014 ' + cartCount + (cartCount === 1 ? ' item' : ' items') + ' in cart');
+}
+
+// ── TOAST ─────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
+}
+
+// ── PAY MODAL ─────────────────────────────────────
+function openPayModal() {
+  document.getElementById('pay-modal').classList.add('open');
+}
+function confirmPayment() {
+  closeModal('pay-modal');
+  showToast('\u2713 Payment of $79 confirmed \u2014 receipt sent to your email');
+  // Update badge
+  const navBadge = document.querySelector('.nav-item[data-page="billing"] .nav-badge');
+  if (navBadge) navBadge.style.display = 'none';
+}
+
+// ── VOTE MODAL ────────────────────────────────────
+function openVoteModal(electionName, candidatesStr) {
+  document.getElementById('vote-modal-title').textContent = 'Vote: ' + electionName;
+  document.getElementById('vote-modal-sub').textContent = 'Select a candidate below then click Submit Vote';
+
+  const candidates = candidatesStr.split('|').map(c => {
+    const [val, label] = c.split(',');
+    return { val, label };
+  });
+
+  let html = '';
+  candidates.forEach(c => {
+    html += '<div class="modal-radio"><label><input type="radio" name="vote-choice" value="' + c.val + '"> <div><div class="cand-name">' + c.label + '</div></div></label></div>';
+  });
+  document.getElementById('vote-candidates').innerHTML = html;
+  document.getElementById('vote-modal').classList.add('open');
+}
+
+function submitVote() {
+  const selected = document.querySelector('input[name="vote-choice"]:checked');
+  if (!selected) { showToast('Please select a candidate first'); return; }
+  closeModal('vote-modal');
+  // Hide the elections badge after voting
+  const navBadge = document.querySelector('.nav-item[data-page="elections"] .nav-badge');
+  if (navBadge) navBadge.textContent = 'Voted';
+  showToast('\u2713 Your vote has been submitted securely');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Close modals on backdrop click
+document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+  backdrop.addEventListener('click', e => {
+    if (e.target === backdrop) backdrop.classList.remove('open');
+  });
+});
+</script>
 </body>
 </html>
