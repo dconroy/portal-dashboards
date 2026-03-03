@@ -4,6 +4,122 @@ let cart = [];
 let votedElections = new Set();
 let paidInvoices = new Set();
 
+// ── WIDGET STORAGE ────────────────────────────────────────────────────────────
+const WIDGETS_KEY = 'ra_portal_widgets';
+
+function loadWidgets() {
+  try { return JSON.parse(localStorage.getItem(WIDGETS_KEY)) || []; }
+  catch(e) { return []; }
+}
+function saveWidgets(widgets) {
+  localStorage.setItem(WIDGETS_KEY, JSON.stringify(widgets));
+}
+function deleteWidget(idx) {
+  const widgets = loadWidgets();
+  widgets.splice(idx, 1);
+  saveWidgets(widgets);
+  navigate('dashboard');
+}
+
+const WIDGET_SNIPPETS = [
+  {
+    label: 'YouTube video',
+    html: '<iframe width="100%" height="160" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen style="border-radius:8px"></iframe>'
+  },
+  {
+    label: 'Announcement banner',
+    html: '<div style="background:#dbeafe;border:1px solid #93c5fd;border-radius:8px;padding:12px 14px;font-size:.84rem;line-height:1.5"><strong>📢 Board Announcement</strong><br>Edit this text to share news with your members.</div>'
+  },
+  {
+    label: 'External link card',
+    html: '<div style="border:1px solid #e2e8f0;border-radius:8px;padding:14px"><p style="font-size:.84rem;font-weight:600;margin-bottom:6px">🔗 Quick Link</p><a href="https://www.nar.realtor" target="_blank" style="font-size:.8rem;color:#1d4ed8">Visit NAR.realtor →</a></div>'
+  },
+  {
+    label: 'Simple HTML notice',
+    html: '<div style="background:#ecfdf5;border:1px solid #6ee7b7;border-radius:8px;padding:12px 14px;font-size:.84rem">✅ <strong>Dues deadline approaching</strong> — renew by <strong>March 30</strong> to avoid a late fee.</div>'
+  },
+];
+
+function openWidgetEditor(editIdx = null) {
+  const widgets = loadWidgets();
+  const editing = editIdx !== null ? widgets[editIdx] : null;
+
+  const snippetButtons = WIDGET_SNIPPETS.map((s, i) =>
+    `<button class="btn btn-secondary btn-xs" style="margin:2px" onclick="insertSnippet(${i})">${s.label}</button>`
+  ).join('');
+
+  showModal(`
+    <h3>${editing ? 'Edit Widget' : 'Add Custom Widget'}</h3>
+    <p class="modal-sub">Paste any HTML, iframe embed, or JavaScript snippet.</p>
+
+    <div style="margin-bottom:12px">
+      <label style="font-size:.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Widget Title</label>
+      <input id="widget-title" type="text" placeholder="e.g. Market Statistics, Board News..."
+        value="${editing ? editing.title.replace(/"/g, '&quot;') : ''}"
+        style="width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:.88rem;font-family:Inter,sans-serif;outline:none;color:var(--text)">
+    </div>
+
+    <div style="margin-bottom:8px">
+      <label style="font-size:.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">HTML / Embed Code</label>
+      <textarea id="widget-html" rows="6" placeholder="Paste HTML, an iframe embed, or a script tag here..."
+        style="width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:.82rem;font-family:monospace;outline:none;resize:vertical;color:var(--text)">${editing ? editing.html.replace(/</g, '&lt;').replace(/>/g, '&gt;') : ''}</textarea>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <div style="font-size:.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Quick snippets</div>
+      <div>${snippetButtons}</div>
+    </div>
+
+    <div style="border:1px solid var(--border);border-radius:8px;padding:12px;background:var(--bg);min-height:60px;margin-bottom:4px">
+      <div style="font-size:.7rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Preview</div>
+      <div id="widget-preview"></div>
+    </div>
+    <div style="font-size:.7rem;color:var(--muted);margin-bottom:4px">
+      <button onclick="previewWidget()" class="btn btn-secondary btn-xs">Refresh Preview</button>
+    </div>
+
+    <div class="modal-footer">
+      ${editing ? `<button class="btn btn-danger btn-sm" onclick="deleteWidget(${editIdx});closeModal()">Delete</button>` : ''}
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveWidget(${editIdx !== null ? editIdx : 'null'})">
+        ${editing ? 'Save Changes' : 'Add Widget'}
+      </button>
+    </div>`);
+}
+
+function insertSnippet(idx) {
+  const ta = document.getElementById('widget-html');
+  if (!ta) return;
+  ta.value = WIDGET_SNIPPETS[idx].html;
+  if (!document.getElementById('widget-title').value)
+    document.getElementById('widget-title').value = WIDGET_SNIPPETS[idx].label;
+  previewWidget();
+}
+
+function previewWidget() {
+  const html = document.getElementById('widget-html')?.value || '';
+  const preview = document.getElementById('widget-preview');
+  if (preview) preview.innerHTML = html;
+}
+
+function saveWidget(editIdx) {
+  const title = (document.getElementById('widget-title')?.value || '').trim();
+  const html  = (document.getElementById('widget-html')?.value  || '').trim();
+  if (!title) { showToast('Please enter a widget title'); return; }
+  if (!html)  { showToast('Please enter some HTML content'); return; }
+
+  const widgets = loadWidgets();
+  if (editIdx !== null && editIdx !== undefined) {
+    widgets[editIdx] = { title, html };
+  } else {
+    widgets.push({ title, html });
+  }
+  saveWidgets(widgets);
+  closeModal();
+  navigate('dashboard');
+  showToast(`✓ Widget "${title}" saved`);
+}
+
 // ── NAV CONFIG ────────────────────────────────────────────────────────────────
 const NAV = [
   { group: 'Overview' },
@@ -351,10 +467,18 @@ const Pages = {
           <div class="activity-item" style="padding:7px 0"><div class="activity-body"><p><strong>New forms library update live</strong></p><span>Feb 22 &bull; Education</span></div></div>
           <div class="activity-item" style="padding:7px 0"><div class="activity-body"><p><strong>Member appreciation event &mdash; Apr 4</strong></p><span>Feb 15 &bull; Events</span></div></div>
         </div>
-        <div class="widget-add-card" onclick="showToast('In production: opens board admin widget editor')">
+        ${loadWidgets().map((w, i) => `
+        <div class="widget-card" style="position:relative">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <div class="card-title" style="margin:0">${w.title}</div>
+            <button onclick="openWidgetEditor(${i})" style="background:none;border:none;cursor:pointer;font-size:.7rem;color:var(--muted);padding:2px 6px;border-radius:4px;line-height:1" title="Edit widget">Edit</button>
+          </div>
+          ${w.html}
+        </div>`).join('')}
+        <div class="widget-add-card" onclick="openWidgetEditor()">
           <div style="font-size:24px;color:var(--muted)">+</div>
           <div style="font-size:.82rem;font-weight:600;color:var(--muted)">Add Custom Widget</div>
-          <div style="font-size:.74rem;color:#cbd5e1;text-align:center">Boards can embed custom HTML,<br>JavaScript, or iframe content here.</div>
+          <div style="font-size:.74rem;color:#cbd5e1;text-align:center">Paste HTML, an iframe, or<br>any embed code here.</div>
         </div>
       </div>`;
   },
